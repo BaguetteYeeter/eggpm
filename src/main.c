@@ -3,6 +3,9 @@
 #include <getopt.h>
 #include <config.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sqlite3.h>
 
 struct options {
     char** packages;
@@ -50,6 +53,18 @@ struct options parse(int argc, char *argv[]) {
     return opts;
 }
 
+char* catstring(char* string1, char* string2) {
+    char* result = (char *) malloc((strlen(string1) + strlen(string2) + 1) * sizeof(char));
+    if (result == NULL) {
+        exit(1);
+    }
+
+    strcpy(result, string1);
+    strcat(result, string2);
+
+    return result;
+}
+
 int main(int argc, char* argv[]) {
     struct options opts = parse(argc, argv);
 
@@ -60,6 +75,21 @@ int main(int argc, char* argv[]) {
 
     printf("EggPM installed in %s\n", INSTALL_PREFIX);
     printf("/var is at %s\n", VAR_PREFIX);
+
+    sqlite3 *db;
+    char* db_location = catstring(VAR_PREFIX, "/eggpm/pkgdb.db");
+    system(catstring("mkdir -p ", catstring(VAR_PREFIX, "/eggpm")));
+
+    int rc = sqlite3_open(db_location, &db);
+
+    if (rc) {
+        fprintf(stderr, "Failed to open pkgdb");
+        exit(1);
+    }
+
+    printf("Opened pkgdb");
+
+    sqlite3_close(db);
 
     return 0;
 }
