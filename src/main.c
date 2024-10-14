@@ -58,5 +58,8 @@ int main(int argc, char* argv[]) {
     }
     printf("%d\n", opts.packc);
 
+    printf("EggPM installed in %s\n", INSTALL_PREFIX);
+    printf("/var is at %s\n", VAR_PREFIX);
+
     return 0;
 }
