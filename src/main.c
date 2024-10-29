@@ -5,7 +5,9 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <sqlite3.h>
+
+#include "utils.h"
+#include "database.h"
 
 struct options {
     char** packages;
@@ -53,18 +55,6 @@ struct options parse(int argc, char *argv[]) {
     return opts;
 }
 
-char* catstring(char* string1, char* string2) {
-    char* result = (char *) malloc((strlen(string1) + strlen(string2) + 1) * sizeof(char));
-    if (result == NULL) {
-        exit(1);
-    }
-
-    strcpy(result, string1);
-    strcat(result, string2);
-
-    return result;
-}
-
 int main(int argc, char* argv[]) {
     struct options opts = parse(argc, argv);
 
@@ -78,16 +68,13 @@ int main(int argc, char* argv[]) {
 
     sqlite3 *db;
     char* db_location = catstring(VAR_PREFIX, "/eggpm/pkgdb.db");
-    system(catstring("mkdir -p ", catstring(VAR_PREFIX, "/eggpm")));
 
-    int rc = sqlite3_open(db_location, &db);
+    db = create_database(db_location);
+    printf("Opened pkgdb\n");
 
-    if (rc) {
-        fprintf(stderr, "Failed to open pkgdb");
-        exit(1);
-    }
-
-    printf("Opened pkgdb");
+    add_package(db, "hello", "2.12.1", "x86_64-darwin", "", "", "1970-01-01T00:00:00+00:00", 187007);
+    
+    list_all_packages(db);
 
     sqlite3_close(db);
 
