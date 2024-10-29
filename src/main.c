@@ -8,10 +8,12 @@
 
 #include "utils.h"
 #include "database.h"
+#include "conf.h"
 
 struct options {
     char** packages;
     int packc;
+    int update_repo;
 };
 
 struct options parse(int argc, char *argv[]) {
@@ -19,8 +21,9 @@ struct options parse(int argc, char *argv[]) {
     struct options opts;
     int arg_index = 0;
 
-    char** packages = (char**) malloc(sizeof(char*) * argc);
+    opts.update_repo = 0;
 
+    char** packages = (char**) malloc(sizeof(char*) * argc);
     for (int i = 0; i < argc; i++) {
         packages[i] = (char*) malloc(sizeof(char) * (strlen(argv[i]) + 1));
     }
@@ -28,6 +31,7 @@ struct options parse(int argc, char *argv[]) {
     struct option long_options[] = {
         {"version", no_argument, 0, 'V'},
         {"help", no_argument, 0, 'h'},
+        {"update-repo", no_argument, 0, 'S'},
         {0, 0, 0, 0}
     };
 
@@ -40,6 +44,8 @@ struct options parse(int argc, char *argv[]) {
             case 'V':
                 printf("%s\n", PACKAGE_STRING);
                 exit(0);
+            case 'S':
+                opts.update_repo = 1;
             default:
                 exit(1);
         }
@@ -65,6 +71,13 @@ int main(int argc, char* argv[]) {
 
     printf("EggPM installed in %s\n", INSTALL_PREFIX);
     printf("/var is at %s\n", VAR_PREFIX);
+    printf("/etc is at %s\n", ETC_PREFIX);
+
+    struct conf config = readconf();
+
+    for (int i = 0; i < config.repoc; i++) {
+        printf("Repository at %s\n", config.repositories[i]);
+    }
 
     sqlite3 *db;
     char* db_location = catstring(VAR_PREFIX, "/eggpm/pkgdb.db");

@@ -13,6 +13,7 @@ PKG_CHECK_MODULES([SQLITE3], [sqlite3], [], [
 
 AC_DEFINE_UNQUOTED([INSTALL_PREFIX], ["$prefix"], [Define the installation prefix])
 AC_DEFINE_UNQUOTED([VAR_PREFIX], ["$prefix/var"], [Define the localstatedir prefix])
+AC_DEFINE_UNQUOTED([ETC_PREFIX], ["$prefix/etc"], [Define the sysconfdir prefix])
 
 AC_CONFIG_MACRO_DIR([m4])
 
