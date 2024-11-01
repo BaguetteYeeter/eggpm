@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "database.h"
 #include "conf.h"
+#include "repo.h"
 
 struct options {
     char** packages;
@@ -36,7 +37,7 @@ struct options parse(int argc, char *argv[]) {
     };
 
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "hV", long_options, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "hVS", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
                 printf("help menu coming soon\n");
@@ -46,6 +47,7 @@ struct options parse(int argc, char *argv[]) {
                 exit(0);
             case 'S':
                 opts.update_repo = 1;
+                continue;
             default:
                 exit(1);
         }
@@ -64,11 +66,6 @@ struct options parse(int argc, char *argv[]) {
 int main(int argc, char* argv[]) {
     struct options opts = parse(argc, argv);
 
-    for (int i = 0; i < argc; i++) {
-        printf("%s\n", opts.packages[i]);
-    }
-    printf("%d\n", opts.packc);
-
     printf("EggPM installed in %s\n", INSTALL_PREFIX);
     printf("/var is at %s\n", VAR_PREFIX);
     printf("/etc is at %s\n", ETC_PREFIX);
@@ -79,8 +76,12 @@ int main(int argc, char* argv[]) {
         printf("Repository at %s\n", config.repositories[i]);
     }
 
+    if (opts.update_repo == 1) {
+        download_repo(config);
+    }
+
     sqlite3 *db;
-    char* db_location = catstring(VAR_PREFIX, "/eggpm/pkgdb.db");
+    char* db_location = catstring(VAR_PREFIX, "/eggpm/pkgdb.db", NULL);
 
     db = create_database(db_location);
     printf("Opened pkgdb\n");

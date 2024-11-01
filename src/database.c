@@ -24,7 +24,7 @@ sqlite3* create_database(char* location) {
         return connect(location);
     }
 
-    system(catstring("mkdir -p ", catstring(VAR_PREFIX, "/eggpm")));
+    system(catstring("mkdir -p ", VAR_PREFIX, "/eggpm", NULL));
 
     sqlite3 *db = connect(location);
 

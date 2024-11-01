@@ -6,9 +6,14 @@ PKG_PROG_PKG_CONFIG
 LT_INIT([disable-static])
 
 AC_CHECK_HEADERS([getopt.h])
+AC_CHECK_HEADERS([regex.h])
 
 PKG_CHECK_MODULES([SQLITE3], [sqlite3], [], [
   AC_MSG_ERROR([can't find sqlite3 library])
+])
+
+PKG_CHECK_MODULES([LIBCURL], [libcurl], [], [
+  AC_MSG_ERROR([can't find libcurl])
 ])
 
 AC_DEFINE_UNQUOTED([INSTALL_PREFIX], ["$prefix"], [Define the installation prefix])

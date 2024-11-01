@@ -2,15 +2,33 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
-char* catstring(char* string1, char* string2) {
-    char* result = (char *) malloc((strlen(string1) + strlen(string2) + 1) * sizeof(char));
+char* catstring(char* string, ...) {
+    int length = 1;
+    length = strlen(string);
+
+    va_list ap;
+    va_start(ap, string);
+
+    char* arg;
+    while ((arg = va_arg(ap, char*)) != NULL) {
+        length += strlen(arg);
+    }
+    va_end(ap);
+
+    char* result = (char *) malloc((length+1) * sizeof(char));
     if (result == NULL) {
         exit(1);
     }
 
-    strcpy(result, string1);
-    strcat(result, string2);
+    strcpy(result, string);
+
+    va_start(ap, string);
+    while ((arg = va_arg(ap, char*)) != NULL) {
+        strcat(result, arg);
+    }
+    va_end(ap);
 
     return result;
 }
@@ -24,9 +42,9 @@ long fsize(FILE *fp) {
     return sz;
 }
 
-void add_string_list(char** list, int* listc, char* string) {
+void add_string_list(char*** list, int* listc, char* string) {
     int count = *listc;
-    char** result = realloc(list, sizeof(char*) * (count + 1));
+    char** result = realloc(*list, sizeof(char*) * (count + 1));
     if (result == NULL) {
         exit(1);
     }
@@ -38,7 +56,7 @@ void add_string_list(char** list, int* listc, char* string) {
 
     count++;
     *listc = count;
-    list = result;
+    *list = result;
 }
 
 char** split_string(char *string, char *split, int *count) {
@@ -47,7 +65,7 @@ char** split_string(char *string, char *split, int *count) {
 
     char *token = strtok(string, split);
     while (token) {
-        add_string_list(result, &size, token);
+        add_string_list(&result, &size, token);
         token = strtok(NULL, split);
     }
 
