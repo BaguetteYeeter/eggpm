@@ -10,6 +10,7 @@
 #include "database.h"
 #include "conf.h"
 #include "repo.h"
+#include "install.h"
 
 struct options {
     char** packages;
@@ -96,6 +97,7 @@ int main(int argc, char* argv[]) {
             }
         }
         printf("Name: %s | Version: %s\n", pkg.name, pkg.version);
+        download_package(pkg);
     }
     
     list_all_packages(db);

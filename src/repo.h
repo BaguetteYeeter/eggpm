@@ -1,7 +1,7 @@
+#include "conf.h"
+
 #ifndef REPO_H
 #define REPO_H
-
-#include "utils.h"
 
 struct repo_package {
     char* name;
