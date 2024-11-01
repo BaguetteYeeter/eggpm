@@ -7,6 +7,11 @@ LT_INIT([disable-static])
 
 AC_CHECK_HEADERS([getopt.h])
 AC_CHECK_HEADERS([regex.h])
+AC_CHECK_HEADERS([libxml/parser.h libxml/tree.h])
+
+AC_CHECK_LIB([xml2], [xmlParseDoc], [], [
+  AC_MSG_ERROR([can't find libxml2])
+])
 
 PKG_CHECK_MODULES([SQLITE3], [sqlite3], [], [
   AC_MSG_ERROR([can't find sqlite3 library])

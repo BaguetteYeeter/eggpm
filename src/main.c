@@ -86,7 +86,17 @@ int main(int argc, char* argv[]) {
     db = create_database(db_location);
     printf("Opened pkgdb\n");
 
-    add_package(db, "hello", "2.12.1", "x86_64-darwin", "", "", "1970-01-01T00:00:00+00:00", 187007);
+    int res;
+    for (int i = 0; i < opts.packc; i++) {
+        struct repo_package pkg;
+        for (int j = 0; j < config.repoc; j++) {
+            res = search_repo(config, j, opts.packages[i], &pkg);
+            if (res == 0) {
+                break;
+            }
+        }
+        printf("Name: %s | Version: %s\n", pkg.name, pkg.version);
+    }
     
     list_all_packages(db);
 
