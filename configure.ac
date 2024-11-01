@@ -19,6 +19,10 @@ AC_CHECK_LIB([xml2], [xmlParseDoc], [], [
   AC_MSG_ERROR([can't find libxml2])
 ])
 
+PKG_CHECK_MODULES([ARCHIVE], [libarchive], [], [
+  AC_MSG_ERROR([can't find libarchive])
+])
+
 PKG_CHECK_MODULES([SQLITE3], [sqlite3], [], [
   AC_MSG_ERROR([can't find sqlite3 library])
 ])

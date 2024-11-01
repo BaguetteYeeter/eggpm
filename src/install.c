@@ -107,7 +107,6 @@ void download_package(struct repo_package pkg) {
 
     fclose(fp);
     fp = fopen(filename, "rb");
-    printf("1.%s\n", filename);
 
     char* checksum = calculate_sha256(fp);
 

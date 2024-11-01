@@ -54,12 +54,13 @@ struct options parse(int argc, char *argv[]) {
         }
     }
 
+	opts.packc = 0;
     while (optind < argc) {
         packages[arg_index++] = argv[optind++];
+        opts.packc++;
     }
 
     opts.packages = packages;
-    opts.packc = optind - 1;
 
     return opts;
 }
