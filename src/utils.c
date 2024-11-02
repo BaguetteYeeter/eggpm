@@ -74,3 +74,32 @@ char** split_string(char *string, char *split, int *count) {
     }
     return result;
 }
+
+char** split_string_no(char *string, char *split, int max) {
+    char** result = (char**) malloc(sizeof(char*) * (max+1));
+    int size = 0;
+
+    if (strstr(string, split) == NULL) {
+        for (int i = 0; i < max+1; i++) {
+            result[i] = NULL;
+        }
+        add_string_list(&result, &size, string);
+        return result;
+    }
+
+    char *token = strtok(string, split);
+    while (token) {
+        add_string_list(&result, &size, token);
+        if (size >= max) {
+            add_string_list(&result, &size, strtok(NULL, ""));
+            break;
+        }
+        token = strtok(NULL, split);
+    }
+
+    return result;
+}
+
+int strstart(char* string, char* start) {
+    return strncmp(string, start, strlen(start));
+}

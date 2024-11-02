@@ -11,11 +11,13 @@
 #include "conf.h"
 #include "repo.h"
 #include "install.h"
+#include "build.h"
 
 struct options {
     char** packages;
     int packc;
     int update_repo;
+    int build_package;
 };
 
 struct options parse(int argc, char *argv[]) {
@@ -24,6 +26,7 @@ struct options parse(int argc, char *argv[]) {
     int arg_index = 0;
 
     opts.update_repo = 0;
+    opts.build_package = 0;
 
     char** packages = (char**) malloc(sizeof(char*) * argc);
     for (int i = 0; i < argc; i++) {
@@ -34,11 +37,12 @@ struct options parse(int argc, char *argv[]) {
         {"version", no_argument, 0, 'V'},
         {"help", no_argument, 0, 'h'},
         {"update-repo", no_argument, 0, 'S'},
+        {"build", no_argument, 0, 'b'},
         {0, 0, 0, 0}
     };
 
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "hVS", long_options, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "hVSb", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
                 printf("help menu coming soon\n");
@@ -48,6 +52,9 @@ struct options parse(int argc, char *argv[]) {
                 exit(0);
             case 'S':
                 opts.update_repo = 1;
+                continue;
+            case 'b':
+                opts.build_package = 1;
                 continue;
             default:
                 exit(1);
@@ -80,6 +87,13 @@ int main(int argc, char* argv[]) {
 
     if (opts.update_repo == 1) {
         download_repo(config);
+    }
+
+    if (opts.build_package == 1) {
+        for (int i = 0; i < opts.packc; i++) {
+            build_package(opts.packages[i]);
+        }
+        exit(0);
     }
 
     sqlite3 *db;
