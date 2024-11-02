@@ -60,8 +60,6 @@ char* get_repo_name(struct conf config, int index) {
 }
 
 void download_repo(struct conf config) {
-    char *pattern = "https?://([A-Za-z0-9\\.]+).*/([A-Za-z0-9_\\.]+)/?";
-
     for (int i = 0; i < config.repoc; i++) {
         char* url = config.repositories[i];
 

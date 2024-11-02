@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <regex.h>
+#include <sys/wait.h>
 
 #include "utils.h"
 
@@ -71,10 +72,55 @@ void build_package(char* name) {
         }
     }
 
+    pclose(fp);
+
     printf("Package name: %s\n", pkg.name);
     printf("Package version: %s\n", pkg.version);
     printf("Package url: %s\n", pkg.url);
     printf("Package checksum: %s\n", pkg.checksum);
-    printf("Stage 10: %s\n", pkg.stages[10]);
+    printf("Stage 20: %s\n", pkg.stages[20]);
     printf("Stage 50: %s\n", pkg.stages[50]);
+    printf("Stage 80: %s\n", pkg.stages[80]);
+
+    printf("Downloading %s\n", pkg.url);
+    char* filename = get_filename_url(pkg.url);
+    char* real_filename = catstring(name, "/", filename, NULL);
+    download_file(pkg.url, real_filename, pkg.checksum);
+
+    printf("Extracting\n");
+    system(catstring("tar -xf ", real_filename, " -C ", name, NULL));
+
+    system(catstring("mkdir -p ", name, "/build", NULL));
+
+    chdir(name);
+
+    for (int i = 0; i < 100; i++) {
+        if (stages[i] == NULL) {
+            continue;
+        }
+
+        printf("%s\n", stages[i]);
+        if (strstart(stages[i], "cd ") == 0) {
+            char** parts = split_string_no(stages[i], " ", 1);
+            chdir(parts[1]);
+            continue;
+        }
+
+        fp = popen(stages[i], "r");
+
+        char buffer[1024];
+        while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+            fputs(buffer, stdout);
+        }
+
+        int status = pclose(fp);
+        status = WEXITSTATUS(status);
+        if (status != 0) {
+            printf("Last command failed");
+            exit(status);
+        }
+    }
+
+    printf("Deleting old files\n");
+    system(catstring("rm ", real_filename, NULL));
 }

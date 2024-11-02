@@ -11,4 +11,8 @@ char** split_string(char *string, char *split, int *count);
 char** split_string_no(char *string, char *split, int max);
 int strstart(char* string, char* start);
 
+void download_file(char* url, char* filename, char* checksum);
+char* get_filename_url(char* url);
+char* calculate_sha256(FILE *fp);
+
 #endif
