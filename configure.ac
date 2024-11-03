@@ -5,8 +5,18 @@ AM_PROG_AR
 PKG_PROG_PKG_CONFIG
 LT_INIT([disable-static])
 
-AC_CHECK_HEADERS([getopt.h regex.h libxml/parser.h libxml/tree.h archive.h openssl/evp.h], [], [
+AC_CHECK_HEADERS([getopt.h regex.h archive.h openssl/evp.h], [], [
   AC_MSG_ERROR([can't find essential header files])
+])
+
+AC_CHECK_HEADERS([libxml/parser.h], [
+  AC_DEFINE([LIBXML_H], [<libxml/parser.h>], [Location of libxml/parser.h])
+], [
+  AC_CHECK_HEADERS([libxml2/libxml/parser.h], [
+    AC_DEFINE([LIBXML_H], [<libxml2/libxml/parser.h>], [Location of libxml/parser.h])
+  ], [
+    AC_MSG_ERROR([can't find libxml])
+  ])
 ])
 
 AC_CHECK_LIB([xml2], [xmlParseDoc], [], [
