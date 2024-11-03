@@ -6,5 +6,6 @@
 
 char* calculate_sha256(FILE *fp);
 void download_package(struct repo_package pkg);
+void install_package(struct repo_package pkg);
 
 #endif

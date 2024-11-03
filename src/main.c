@@ -18,6 +18,7 @@ struct options {
     int packc;
     int update_repo;
     int build_package;
+    int install;
 };
 
 struct options parse(int argc, char *argv[]) {
@@ -27,6 +28,7 @@ struct options parse(int argc, char *argv[]) {
 
     opts.update_repo = 0;
     opts.build_package = 0;
+    opts.install = 0;
 
     char** packages = (char**) malloc(sizeof(char*) * argc);
     for (int i = 0; i < argc; i++) {
@@ -38,11 +40,12 @@ struct options parse(int argc, char *argv[]) {
         {"help", no_argument, 0, 'h'},
         {"update-repo", no_argument, 0, 'S'},
         {"build", no_argument, 0, 'b'},
+        {"install", no_argument, 0, 'i'},
         {0, 0, 0, 0}
     };
 
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "hVSb", long_options, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "hVSbi", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
                 printf("help menu coming soon\n");
@@ -55,6 +58,9 @@ struct options parse(int argc, char *argv[]) {
                 continue;
             case 'b':
                 opts.build_package = 1;
+                continue;
+            case 'i':
+                opts.install = 1;
                 continue;
             default:
                 exit(1);
@@ -102,17 +108,20 @@ int main(int argc, char* argv[]) {
     db = create_database(db_location);
     printf("Opened pkgdb\n");
 
-    int res;
-    for (int i = 0; i < opts.packc; i++) {
-        struct repo_package pkg;
-        for (int j = 0; j < config.repoc; j++) {
-            res = search_repo(config, j, opts.packages[i], &pkg);
-            if (res == 0) {
-                break;
+    if (opts.install == 1) {
+        int res;
+        for (int i = 0; i < opts.packc; i++) {
+            struct repo_package pkg;
+            for (int j = 0; j < config.repoc; j++) {
+                res = search_repo(config, j, opts.packages[i], &pkg);
+                if (res == 0) {
+                    break;
+                }
             }
+            printf("Name: %s | Version: %s\n", pkg.name, pkg.version);
+            download_package(pkg);
+            install_package(pkg);
         }
-        printf("Name: %s | Version: %s\n", pkg.name, pkg.version);
-        download_package(pkg);
     }
     
     list_all_packages(db);

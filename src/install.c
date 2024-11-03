@@ -40,3 +40,35 @@ char* get_filename(struct repo_package pkg) {
 void download_package(struct repo_package pkg) {
     download_file(pkg.url, get_filename(pkg), pkg.checksum);
 }
+
+void install_package(struct repo_package pkg) {
+    char* filename = get_filename(pkg);
+
+    //temporary so it doesnt break my system
+    system("mkdir -p /tmp/eggpmtest");
+
+    struct archive *archive = archive_read_new();
+    archive_read_support_filter_xz(archive);
+    archive_read_support_format_tar(archive);
+
+    if (archive_read_open_filename(archive, filename, 16384) != ARCHIVE_OK) {
+        printf("Failed to open %s\n", filename);
+        exit(1);
+    }
+
+    struct archive_entry *entry;
+    while (archive_read_next_header(archive, &entry) == ARCHIVE_OK) {
+        struct archive *disk = archive_write_disk_new();
+
+        const char* original = archive_entry_pathname(entry);
+        archive_entry_set_pathname(entry, catstring("/tmp/eggpmtest/", original, NULL));
+
+        archive_write_header(disk, entry);
+        const void *buff;
+        size_t size;
+        int64_t offset;
+        while (archive_read_data_block(archive, &buff, &size, &offset) == ARCHIVE_OK) {
+            archive_write_data_block(disk, buff, size, offset);
+        }
+    }
+}
