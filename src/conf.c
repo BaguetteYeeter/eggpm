@@ -9,7 +9,28 @@
 struct conf {
     char** repositories;
     int repoc;
+    char* arch;
 };
+
+char* get_arch() {
+    char* arch = "unknown";
+
+    #if defined(__x86_64__) || defined(_M_X64)
+        #if defined(__APPLE__) && defined(__MACH__)
+            arch = "x86_64-darwin";
+        #else
+            arch = "x86_64";
+        #endif
+    #elif defined(__aarch64__)
+        #if defined(__APPLE__) && defined(__MACH__)
+            arch = "arm64-darwin";
+        #else
+            arch = "arm64";
+        #endif
+    #endif
+
+    return arch;
+}
 
 struct conf readconf() {
     struct conf result;
@@ -48,6 +69,8 @@ struct conf readconf() {
             add_string_list(&result.repositories, &result.repoc, repo);
         }
     }
+
+    result.arch = get_arch();
     
     return result;
 }

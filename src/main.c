@@ -14,30 +14,8 @@
 #include "build.h"
 #include "parser.h"
 
-char* get_arch() {
-    char* arch = "unknown";
-
-    #if defined(__x86_64__) || defined(_M_X64)
-        #if defined(__APPLE__) && defined(__MACH__)
-            arch = "x86_64-darwin";
-        #else
-            arch = "x86_64";
-        #endif
-    #elif defined(__aarch64__)
-        #if defined(__APPLE__) && defined(__MACH__)
-            arch = "arm64-darwin";
-        #else
-            arch = "arm64";
-        #endif
-    #endif
-
-    return arch;
-}
-
 int main(int argc, char* argv[]) {
     struct options opts = parse(argc, argv);
-
-    char* arch = get_arch();
 
     struct conf config = readconf();
 

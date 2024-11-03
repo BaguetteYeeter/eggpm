@@ -1,11 +1,9 @@
 #include <archive.h>
 #include <archive_entry.h>
 #include <stdio.h>
-#include <curl/curl.h>
 #include <regex.h>
 #include <string.h>
 #include <config.h>
-#include <openssl/evp.h>
 #include <stdlib.h>
 
 #include "repo.h"

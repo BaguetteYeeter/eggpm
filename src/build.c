@@ -4,18 +4,39 @@
 #include <string.h>
 #include <regex.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
+#include <ftw.h>
 
 #include "utils.h"
+#include "conf.h"
 
 struct build_pkg {
     char* name;
     char* version;
+    char* arch;
+    char* description;
     char* makedepends;
     char* rundepends;
     char* url;
     char* checksum;
     char** stages;
 };
+
+static unsigned int totalSize = 0;
+int sum(const char *fpath, const struct stat *sb, int typeflag) {
+    if (S_ISDIR(sb->st_mode)) {return 0;}
+    totalSize += sb->st_size;
+    return 0;
+}
+
+//i hate ftw so much, it makes no sense
+long int getSize(char* directory) {
+    totalSize = 0;
+    if (ftw(directory, &sum, 1)) {
+        exit(1);
+    }
+    return (long int) totalSize;
+}
 
 void build_package(char* name) {
     char* path = catstring(name, "/build.sh", NULL);
@@ -29,14 +50,15 @@ void build_package(char* name) {
     for (int i = 0; i < 100; i++) {
         stages[i] = NULL;
     }
-    struct build_pkg pkg = {"", "", "", "", "", "", stages};
+    struct build_pkg pkg = {"", "", get_arch(), "", "", "", "", "", stages};
+
+    printf("Reading package info\n");
 
     FILE *fp = popen(catstring("source ", path, " && set", NULL), "r");
 
     char line[256];
     while (fgets(line, sizeof(line), fp) != NULL) {
         line[strcspn(line, "\n")] = 0;
-        //char** parts = split_string(line, "=", (int*) -1);
         char** parts = split_string_no(line, "=", 1);
         if (strcmp(parts[0], "name") == 0) {
             pkg.name = parts[1];
@@ -46,6 +68,8 @@ void build_package(char* name) {
             pkg.url = parts[1];
         } else if (strcmp(parts[0], "checksum") == 0) {
             pkg.checksum = parts[1];
+        } else if (strcmp(parts[0], "description") == 0) {
+            pkg.description = parts[1];
         } else if (strcmp(parts[0], "makedepends") == 0) {
             pkg.makedepends = parts[1];
         } else if (strcmp(parts[0], "rundepends") == 0) {
@@ -74,14 +98,6 @@ void build_package(char* name) {
 
     pclose(fp);
 
-    printf("Package name: %s\n", pkg.name);
-    printf("Package version: %s\n", pkg.version);
-    printf("Package url: %s\n", pkg.url);
-    printf("Package checksum: %s\n", pkg.checksum);
-    printf("Stage 20: %s\n", pkg.stages[20]);
-    printf("Stage 50: %s\n", pkg.stages[50]);
-    printf("Stage 80: %s\n", pkg.stages[80]);
-
     printf("Downloading %s\n", pkg.url);
     char* filename = get_filename_url(pkg.url);
     char* real_filename = catstring(name, "/", filename, NULL);
@@ -102,7 +118,7 @@ void build_package(char* name) {
             continue;
         }
 
-        printf("%s\n", stages[i]);
+        printf(">>> %s\n", stages[i]);
         if (strstart(stages[i], "cd ") == 0) {
             char** parts = split_string_no(stages[i], " ", 1);
             chdir(parts[1]);
@@ -128,11 +144,32 @@ void build_package(char* name) {
     system("mkdir -p dist");
     system(catstring("tar -cJf dist/", pkgpath, " -C build .", NULL));
 
+    long size = getSize("build");
+
     printf("Deleting old files\n");
     system(catstring("rm ", filename, NULL));
     system(catstring("rm -rf build"));
 
     chdir(cwd);
 
-    printf("Package successfully created at `%s/dist/%s`\n", name, pkgpath);
+    printf("---------------------------------------\nPackage successfully created at `%s/dist/%s`\n", name, pkgpath);
+
+    fp = fopen(catstring(name, "/dist/", pkgpath, NULL), "rb");
+    char* checksum = calculate_sha256(fp);
+    fclose(fp);
+
+    printf("\nIf you're building this for a repo, here is package information\n");
+    printf(
+        "<package name=\"%s\">\n"
+		"    <name>%s</name>\n"
+		"    <version>%s</version>\n"
+		"    <architecture>%s</architecture>\n"
+		"    <description>%s</description>\n"
+		"    <size>%ld</size>\n"
+        "    <dependencies>%s</dependencies>\n"
+		"    <url>YOURURL/%s</url>\n"
+		"    <checksum>%s</checksum>\n"
+	    "</package>\n",
+        pkg.name, pkg.name, pkg.version, pkg.arch, pkg.description, size, pkg.rundepends, pkgpath, checksum
+    );
 }

@@ -132,6 +132,10 @@ int search_repo(struct conf config, int repo_index, char* pkgname, struct repo_p
                     } else if (xmlStrcmp(child->name, (const xmlChar *)"architecture") == 0) {
                         xmlChar *arch = xmlNodeGetContent(child);
                         pkg.architecture = (char*) arch;
+                        if (strcmp((char*) arch, config.arch) != 0) {
+                            found = 0;
+                            break;
+                        }
                     } else if (xmlStrcmp(child->name, (const xmlChar *)"description") == 0) {
                         xmlChar *desc = xmlNodeGetContent(child);
                         pkg.description = (char*) desc;
