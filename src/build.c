@@ -54,7 +54,7 @@ void build_package(char* name) {
 
     printf("Reading package info\n");
 
-    FILE *fp = popen(catstring("source ", path, " && set", NULL), "r");
+    FILE *fp = popen(catstring("exec bash -c 'source ", path, " && set'", NULL), "r");
 
     char line[256];
     while (fgets(line, sizeof(line), fp) != NULL) {
