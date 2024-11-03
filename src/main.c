@@ -78,18 +78,33 @@ struct options parse(int argc, char *argv[]) {
     return opts;
 }
 
+char* get_arch() {
+    char* arch = "unknown";
+
+    #if defined(__x86_64__) || defined(_M_X64)
+        #if defined(__APPLE__) && defined(__MACH__)
+            arch = "x86_64-darwin";
+        #else
+            arch = "x86_64";
+        #endif
+    #elif defined(__aarch64__)
+        #if defined(__APPLE__) && defined(__MACH__)
+            arch = "arm64-darwin";
+        #else
+            arch = "arm64";
+        #endif
+    #endif
+
+    return arch;
+}
+
 int main(int argc, char* argv[]) {
     struct options opts = parse(argc, argv);
 
-    printf("EggPM installed in %s\n", INSTALL_PREFIX);
-    printf("/var is at %s\n", VAR_PREFIX);
-    printf("/etc is at %s\n", ETC_PREFIX);
+    char* arch = get_arch();
+    printf("Architecture: %s\n", arch);
 
     struct conf config = readconf();
-
-    for (int i = 0; i < config.repoc; i++) {
-        printf("Repository at %s\n", config.repositories[i]);
-    }
 
     if (opts.update_repo == 1) {
         download_repo(config);
@@ -106,7 +121,6 @@ int main(int argc, char* argv[]) {
     char* db_location = catstring(VAR_PREFIX, "/eggpm/pkgdb.db", NULL);
 
     db = create_database(db_location);
-    printf("Opened pkgdb\n");
 
     if (opts.install == 1) {
         int res;
@@ -123,8 +137,6 @@ int main(int argc, char* argv[]) {
             install_package(pkg);
         }
     }
-    
-    list_all_packages(db);
 
     sqlite3_close(db);
 

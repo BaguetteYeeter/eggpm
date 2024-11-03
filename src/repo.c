@@ -94,8 +94,6 @@ void download_repo(struct conf config) {
 
         fclose(fp);
         curl_easy_cleanup(curl);
-
-        printf("Downloaded repo %s\n", url);
     }
 }
 
