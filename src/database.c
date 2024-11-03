@@ -6,7 +6,7 @@
 
 #include "utils.h"
 
-sqlite3* connect(char* location) {
+sqlite3* database_connect(char* location) {
     sqlite3* db;
 
     int rc = sqlite3_open(location, &db);
@@ -21,12 +21,12 @@ sqlite3* connect(char* location) {
 
 sqlite3* create_database(char* location) {
     if (access(location, F_OK) == 0) {
-        return connect(location);
+        return database_connect(location);
     }
 
     system(catstring("mkdir -p ", VAR_PREFIX, "/eggpm", NULL));
 
-    sqlite3 *db = connect(location);
+    sqlite3 *db = database_connect(location);
 
     char* err_msg;
     int rc;

@@ -3,7 +3,6 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-sqlite3* connect(char* location);
 sqlite3* create_database(char* location);
 void list_all_packages(sqlite3 *db);
 
