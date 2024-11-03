@@ -92,6 +92,9 @@ void build_package(char* name) {
 
     system(catstring("mkdir -p ", name, "/build", NULL));
 
+    char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
+
     chdir(name);
 
     for (int i = 0; i < 100; i++) {
@@ -121,6 +124,15 @@ void build_package(char* name) {
         }
     }
 
+    char* pkgpath = catstring(pkg.name, "-", pkg.version, ".eggpm", NULL);
+    system("mkdir -p dist");
+    system(catstring("tar -cJf dist/", pkgpath, " -C build .", NULL));
+
     printf("Deleting old files\n");
-    system(catstring("rm ", real_filename, NULL));
+    system(catstring("rm ", filename, NULL));
+    system(catstring("rm -rf build"));
+
+    chdir(cwd);
+
+    printf("Package successfully created at `%s/dist/%s`\n", name, pkgpath);
 }
