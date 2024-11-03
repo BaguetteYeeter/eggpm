@@ -38,10 +38,13 @@ int main(int argc, char* argv[]) {
     struct options opts = parse(argc, argv);
 
     char* arch = get_arch();
-    printf("Architecture: %s\n", arch);
 
     struct conf config = readconf();
 
+    if (config.repoc < 1) {
+        printf("Warning: No repositories found");
+    }
+ 
     if (opts.update_repo == 1) {
         download_repo(config);
     }
@@ -68,9 +71,15 @@ int main(int argc, char* argv[]) {
                     break;
                 }
             }
-            printf("Name: %s | Version: %s\n", pkg.name, pkg.version);
-            download_package(pkg);
-            install_package(pkg);
+            if (res == 0) {
+                printf("Name: %s | Version: %s\n", pkg.name, pkg.version);
+                download_package(pkg);
+                install_package(pkg);
+                printf("%s successfully installed\n", pkg.name);
+            } else {
+                printf("ERROR: Package `%s` not found\n", opts.packages[i]);
+                exit(1);
+            }
         }
     }
 
