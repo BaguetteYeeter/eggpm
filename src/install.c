@@ -18,7 +18,7 @@ char* get_filename(struct repo_package pkg) {
     int reti = regcomp(&regex, pattern, REG_EXTENDED);
 
     regmatch_t matches[2];
-    reti = regexec(&regex, pkg.url, 3, matches, 0);
+    reti = regexec(&regex, pkg.url, 2, matches, 0);
 
     if (reti) {
         printf("URL issue %d %s\n", reti, pkg.url);
