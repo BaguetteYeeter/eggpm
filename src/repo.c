@@ -4,7 +4,7 @@
 #include <regex.h>
 #include <string.h>
 #include <stdlib.h>
-#include LIBXML_H
+#include <libxml/parser.h>
 
 #include "conf.h"
 #include "utils.h"

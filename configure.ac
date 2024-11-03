@@ -9,17 +9,11 @@ AC_CHECK_HEADERS([getopt.h regex.h archive.h openssl/evp.h], [], [
   AC_MSG_ERROR([can't find essential header files])
 ])
 
-AC_CHECK_HEADERS([libxml/parser.h], [
-  AC_DEFINE([LIBXML_H], [<libxml/parser.h>], [Location of libxml/parser.h])
-], [
-  AC_CHECK_HEADERS([libxml2/libxml/parser.h], [
-    AC_DEFINE([LIBXML_H], [<libxml2/libxml/parser.h>], [Location of libxml/parser.h])
-  ], [
-    AC_MSG_ERROR([can't find libxml])
-  ])
+AC_CHECK_LIB([xml2], [xmlParseDoc], [], [
+  AC_MSG_ERROR([can't find libxml2])
 ])
 
-AC_CHECK_LIB([xml2], [xmlParseDoc], [], [
+PKG_CHECK_MODULES([LIBXML], [libxml-2.0], [], [
   AC_MSG_ERROR([can't find libxml2])
 ])
 
