@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     struct conf config = readconf();
 
     if (config.repoc < 1) {
-        printf("Warning: No repositories found");
+        printf("Warning: No repositories found\n");
     }
  
     if (opts.update_repo == 1) {
