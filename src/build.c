@@ -42,7 +42,7 @@ void build_package(char* name) {
     char* path = catstring(name, "/build.sh", NULL);
 
     if (access(path, F_OK) != 0) {
-        printf("Can't find build file");
+        printf("Can't find build file\n");
         exit(1);
     }
 

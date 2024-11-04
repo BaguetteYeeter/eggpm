@@ -46,7 +46,7 @@ struct conf readconf() {
 
     FILE *file = fopen(filename, "rb");
     if (!file) {
-        fprintf(stderr, "Failed to open config file");
+        fprintf(stderr, "Failed to open config file\n");
         exit(1);
     }
 

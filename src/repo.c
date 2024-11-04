@@ -109,7 +109,7 @@ int search_repo(struct conf config, int repo_index, char* pkgname, struct repo_p
 
     xmlDoc *doc = xmlReadFile(path, NULL, 0);
     if (doc == NULL) {
-        printf("Error reading repo");
+        printf("Error reading repo\n");
         exit(1);
     }
 

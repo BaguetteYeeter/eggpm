@@ -158,7 +158,7 @@ void download_file(char* url, char* filename, char* checksum) {
     CURL *curl = curl_easy_init();
 
     if (!curl) {
-        printf("Error when starting curl");
+        printf("Error when starting curl\n");
         exit(1);
     }
 
@@ -171,7 +171,7 @@ void download_file(char* url, char* filename, char* checksum) {
     CURLcode res = curl_easy_perform(curl);
 
     if (res != CURLE_OK) {
-        printf("Curl error");
+        printf("Curl error\n");
         exit(1);
     }
 

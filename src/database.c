@@ -83,7 +83,7 @@ void add_package(sqlite3 *db, char* name, char* version, char* architecture, cha
     rc = sqlite3_step(stmt);
 
     if (rc != SQLITE_DONE) {
-        printf("DB Error");
+        printf("DB Error\n");
         exit(1);
     }
 
