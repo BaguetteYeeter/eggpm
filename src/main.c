@@ -39,26 +39,69 @@ int main(int argc, char* argv[]) {
 
     db = create_database(db_location);
 
-    if (opts.install == 1) {
-        int res;
-        for (int i = 0; i < opts.packc; i++) {
-            struct repo_package pkg;
-            for (int j = 0; j < config.repoc; j++) {
-                res = search_repo(config, j, opts.packages[i], &pkg);
-                if (res == 0) {
-                    break;
-                }
-            }
+    int res;
+
+    struct repo_package *packages = (struct repo_package*) malloc(sizeof(struct repo_package) * opts.packc);
+    int packc = 0;
+
+    for (int i = 0; i < opts.packc; i++) {
+        struct repo_package pkg;
+        for (int j = 0; j < config.repoc; j++) {
+            res = search_repo(config, j, opts.packages[i], &pkg);
             if (res == 0) {
-                printf("Name: %s | Version: %s\n", pkg.name, pkg.version);
-                download_package(pkg);
-                install_package(pkg);
-                printf("%s successfully installed\n", pkg.name);
-            } else {
-                printf("ERROR: Package `%s` not found\n", opts.packages[i]);
-                exit(1);
+                break;
             }
         }
+        if (res == 0) {
+            if (opts.install == 1) {
+                pkg.operation = "install";
+            }
+            packages[packc] = pkg;
+            packc++;
+        } else {
+            printf("ERROR: Package `%s` not found\n", opts.packages[i]);
+            exit(1);
+        }
+    }
+
+    if (packc > 0) {
+        printf("\n");
+
+        for (int i = 0; i < packc; i++) {
+            struct repo_package pkg = packages[i];
+            printf("%s (%s) will be %sed\n", pkg.name, pkg.version, pkg.operation);
+        }
+
+        printf("\nDo you want to continue [y/n]? ");
+        fflush(stdout);
+        char* yesno = (char*) malloc(sizeof(char) * 30);
+        scanf("%29s", yesno);
+        if (strcmp("y", yesno) != 0) {
+            printf("Aborting!\n");
+            exit(0);
+        }
+
+        struct repo_package pkg;
+
+        printf("\n---Downloading packages---\n");
+        for (int i = 0; i < packc; i++) {
+            pkg = packages[i];
+            printf("%s... ", pkg.url);
+            fflush(stdout);
+            download_package(pkg);
+            printf("done\n");
+        }
+        
+        printf("\n---Installing packages---\n");
+        for (int i = 0; i < packc; i++) {
+            pkg = packages[i];
+            printf("%s-%s... ", pkg.name, pkg.version);
+            fflush(stdout);
+            install_package(pkg);
+            printf("done\n");
+        }
+
+        printf("\nSuccessfully installed %d packages\n", packc);
     }
 
     sqlite3_close(db);

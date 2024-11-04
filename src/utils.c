@@ -144,6 +144,16 @@ char* calculate_sha256(FILE *fp) {
     return hex;
 }
 
+char* get_sha256(char* filename) {
+    if (access(filename, F_OK) != 0) {
+        printf("Failed to read `%s`\n", filename);
+    }
+    FILE* fp = fopen(filename, "rb");
+    char* checksum = calculate_sha256(fp);
+    fclose(fp);
+    return checksum;
+}
+
 void download_file(char* url, char* filename, char* checksum) {
     CURL *curl = curl_easy_init();
 

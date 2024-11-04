@@ -13,6 +13,8 @@ int strstart(char* string, char* start);
 
 void download_file(char* url, char* filename, char* checksum);
 char* get_filename_url(char* url);
+
 char* calculate_sha256(FILE *fp);
+char* get_sha256(char* filename);
 
 #endif

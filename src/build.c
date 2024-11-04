@@ -46,13 +46,15 @@ void build_package(char* name) {
         exit(1);
     }
 
+    printf("\nBuilding package `%s`...\n", name);
+
     char** stages = (char**) malloc(sizeof(char*) * 100);
     for (int i = 0; i < 100; i++) {
         stages[i] = NULL;
     }
     struct build_pkg pkg = {"", "", get_arch(), "", "", "", "", "", stages};
 
-    printf("Reading package info\n");
+    printf("\n---Reading package info---\n");
 
     FILE *fp = popen(catstring("exec bash -c 'source ", path, " && set'", NULL), "r");
 
@@ -98,13 +100,19 @@ void build_package(char* name) {
 
     pclose(fp);
 
-    printf("Downloading %s\n", pkg.url);
+    printf("\n---Downloading files---\n");
+    printf("%s... ", pkg.url);
+    fflush(stdout);
     char* filename = get_filename_url(pkg.url);
     char* real_filename = catstring(name, "/", filename, NULL);
     download_file(pkg.url, real_filename, pkg.checksum);
+    printf("done\n");
 
-    printf("Extracting\n");
+    printf("\n---Extracting files---\n");
+    printf("%s... ", filename);
+    fflush(stdout);
     system(catstring("tar -xf ", real_filename, " -C ", name, NULL));
+    printf("done\n");
 
     system(catstring("mkdir -p ", name, "/build", NULL));
 
@@ -113,6 +121,7 @@ void build_package(char* name) {
 
     chdir(name);
 
+    printf("\n---Running stages---\n");
     for (int i = 0; i < 100; i++) {
         if (stages[i] == NULL) {
             continue;
@@ -140,19 +149,23 @@ void build_package(char* name) {
         }
     }
 
+    printf("\n---Packaging---\n");
     char* pkgpath = catstring(pkg.name, "-", pkg.version, ".eggpm", NULL);
+    printf("%s... ", pkgpath);
+    fflush(stdout);
     system("mkdir -p dist");
     system(catstring("tar -cJf dist/", pkgpath, " -C build .", NULL));
+    printf("done\n");
 
     long size = getSize("build");
 
-    printf("Deleting old files\n");
+    printf("\n---Deleting old files---\n");
     system(catstring("rm ", filename, NULL));
     system(catstring("rm -rf build"));
 
     chdir(cwd);
 
-    printf("---------------------------------------\nPackage successfully created at `%s/dist/%s`\n", name, pkgpath);
+    printf("\n---------------------------------------\nPackage successfully created at `%s/dist/%s`\n", name, pkgpath);
 
     fp = fopen(catstring(name, "/dist/", pkgpath, NULL), "rb");
     char* checksum = calculate_sha256(fp);

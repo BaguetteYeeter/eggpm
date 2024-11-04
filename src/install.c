@@ -9,7 +9,7 @@
 #include "repo.h"
 #include "utils.h"
 
-char* get_filename(struct repo_package pkg) {
+char* get_pkg_filename(struct repo_package pkg) {
     char *pattern = "https?://[A-Za-z0-9\\.\\-]+.*/([A-Za-z0-9_\\.\\-]+)/?";
 
     regex_t regex;
@@ -36,11 +36,11 @@ char* get_filename(struct repo_package pkg) {
 }
 
 void download_package(struct repo_package pkg) {
-    download_file(pkg.url, get_filename(pkg), pkg.checksum);
+    download_file(pkg.url, get_pkg_filename(pkg), pkg.checksum);
 }
 
 void install_package(struct repo_package pkg) {
-    char* filename = get_filename(pkg);
+    char* filename = get_pkg_filename(pkg);
 
     //temporary so it doesnt break my system
     system("mkdir -p /tmp/eggpmtest");

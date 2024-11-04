@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include "repo.h"
 
-char* calculate_sha256(FILE *fp);
+char* get_pkg_filename(struct repo_package pkg);
 void download_package(struct repo_package pkg);
 void install_package(struct repo_package pkg);
 

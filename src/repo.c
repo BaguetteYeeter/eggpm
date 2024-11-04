@@ -18,6 +18,7 @@ struct repo_package {
     long int size;
     char* url;
     char* checksum;
+    char* operation;
 };
 
 static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
@@ -62,10 +63,13 @@ void download_repo(struct conf config) {
     for (int i = 0; i < config.repoc; i++) {
         char* url = config.repositories[i];
 
+        printf("Updating repository `%s`... ", url);
+        fflush(stdout);
+
         CURL *curl = curl_easy_init();
 
         if (!curl) {
-            printf("Error when starting curl");
+            printf("Error when starting curl\n");
             exit(1);
         }
 
@@ -80,7 +84,7 @@ void download_repo(struct conf config) {
         CURLcode res = curl_easy_perform(curl);
 
         if (res != CURLE_OK) {
-            printf("Curl error");
+            printf("Curl error\n");
             exit(1);
         }
 
@@ -93,6 +97,8 @@ void download_repo(struct conf config) {
 
         fclose(fp);
         curl_easy_cleanup(curl);
+
+        printf("done\n");
     }
 }
 
@@ -107,7 +113,7 @@ int search_repo(struct conf config, int repo_index, char* pkgname, struct repo_p
         exit(1);
     }
 
-    struct repo_package pkg;
+    struct repo_package pkg = {"", "", "", "", "", 0, "", "", ""};
     int found = 0;
 
     //i dont understand any of this
