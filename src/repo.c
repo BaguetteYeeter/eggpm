@@ -157,6 +157,10 @@ int search_repo(struct conf config, int repo_index, char* pkgname, struct repo_p
                     }
                 }
             }
+
+            if (found == 1) {
+                break;
+            }
         }
     }
 
