@@ -63,5 +63,5 @@ libtool
 
 *~
 
-*.eggpm
+*/*/dist/*.eggpm
 eggpm

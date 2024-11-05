@@ -1,0 +1,21 @@
+<repo>
+    <package name="hello">
+        <name>hello</name>
+        <version>2.12.1</version>
+        <architecture>x86_64-darwin</architecture>
+        <description>Friendly Greeting</description>
+        <size>187007</size>
+        <url>https://baguye.uk/eggpm/hello-2.12.1-darwin.eggpm</url>
+        <checksum>9ed3be33e05d765607845bb77e3bc02dcebd13ed50ca8658d0110e9fa58c6166</checksum>
+    </package>
+    <package name="hello">
+        <name>hello</name>
+        <version>2.12.1</version>
+        <architecture>x86_64</architecture>
+        <description></description>
+        <size>228275</size>
+        <dependencies></dependencies>
+        <url>https://baguye.uk/eggpm/hello-2.12.1.eggpm</url>
+        <checksum>f942c2862115450062d40dce6fd26ed59ca24df6d2c25351baddb88e5971eb58</checksum>
+    </package>
+</repo>
