@@ -65,3 +65,4 @@ libtool
 
 */*/dist/*.eggpm
 eggpm
+*.tar.*z
