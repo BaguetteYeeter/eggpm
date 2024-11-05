@@ -12,6 +12,22 @@ struct options {
     int install;
 };
 
+void print_help(char* program_name) {
+    printf(
+        "EggPM Package Manager\n"
+        "Usage: %s [OPTION] [PACKAGES...]\n\n"
+        "  -b, --build          build a package\n"
+        "  -i, --install        install a package\n"
+        "  -S, --update-repo    update the repository\n\n"
+        "  --help       display this help and exit\n"
+        "  --version    output version information and exit\n\n"
+
+        "Report bugs to: baguetteyeeter@icloud.com\n"
+        "EggPM home page: <https://github.com/BaguetteYeeter/eggpm>\n"
+        , program_name
+    );
+}
+
 struct options parse(int argc, char *argv[]) {
     int opt;
     struct options opts;
@@ -39,7 +55,7 @@ struct options parse(int argc, char *argv[]) {
     while ((opt = getopt_long(argc, argv, "hVSbi", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
-                printf("help menu coming soon\n");
+                print_help(argv[0]);
                 exit(0);
             case 'V':
                 printf("%s\n", PACKAGE_STRING);
@@ -54,6 +70,7 @@ struct options parse(int argc, char *argv[]) {
                 opts.install = 1;
                 continue;
             default:
+                print_help(argv[0]);
                 exit(1);
         }
     }
