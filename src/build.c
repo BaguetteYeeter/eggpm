@@ -149,15 +149,33 @@ void build_package(char* name) {
         }
     }
 
+    long size = getSize("build");
+    char* pkgxml = (char*) malloc(sizeof(char) * 1024);
+
+    snprintf(
+        pkgxml, 1024,
+        "<package>\n"
+        "    <name>%s</name>\n"
+        "    <version>%s</version>\n"
+        "    <architecture>%s</architecture>\n"
+        "    <description>%s</description>\n"
+        "    <size>%ld</size>\n"
+        "    <dependencies>%s</dependencies>\n"
+        "</package>",
+        pkg.name, pkg.version, pkg.arch, pkg.description, size, pkg.rundepends
+    );
+
+    fp = fopen("build/info.xml", "wb");
+    fwrite(pkgxml, 1, strlen(pkgxml), fp);
+    fclose(fp);
+
     printf("\n---Packaging---\n");
-    char* pkgpath = catstring(pkg.name, "-", pkg.version, ".eggpm", NULL);
+    char* pkgpath = catstring(pkg.name, "-", pkg.version, "-", pkg.arch, ".eggpm", NULL);
     printf("%s... ", pkgpath);
     fflush(stdout);
     system("mkdir -p dist");
     system(catstring("tar -cJf dist/", pkgpath, " -C build .", NULL));
     printf("done\n");
-
-    long size = getSize("build");
 
     printf("\n---Deleting old files---\n");
     system(catstring("rm ", filename, NULL));
@@ -174,15 +192,15 @@ void build_package(char* name) {
     printf("\nIf you're building this for a repo, here is package information\n");
     printf(
         "<package name=\"%s\">\n"
-		"    <name>%s</name>\n"
-		"    <version>%s</version>\n"
-		"    <architecture>%s</architecture>\n"
-		"    <description>%s</description>\n"
-		"    <size>%ld</size>\n"
+        "    <name>%s</name>\n"
+        "    <version>%s</version>\n"
+        "    <architecture>%s</architecture>\n"
+        "    <description>%s</description>\n"
+        "    <size>%ld</size>\n"
         "    <dependencies>%s</dependencies>\n"
-		"    <url>YOURURL/%s</url>\n"
-		"    <checksum>%s</checksum>\n"
-	    "</package>\n",
+        "    <url>YOURURL/%s</url>\n"
+        "    <checksum>%s</checksum>\n"
+        "</package>\n",
         pkg.name, pkg.name, pkg.version, pkg.arch, pkg.description, size, pkg.rundepends, pkgpath, checksum
     );
 }

@@ -1,4 +1,4 @@
-AC_INIT([eggpm], [0.1], [baguetteyeeter@icloud.com])
+AC_INIT([eggpm], [0.2], [baguetteyeeter@icloud.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_CC
 AM_PROG_AR

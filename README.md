@@ -56,6 +56,8 @@ EggPM only has a few commands at this stage.
 
 ### Installing a package:
 
+[package] can either be a name for a package from the repository, or a .eggpm file
+
 `eggpm -i [package]`
 
 ### Building a package from source
@@ -177,7 +179,8 @@ hello
 └── hello-2.12.1.tar.gz
 ```
 
-After the stages, EggPM returns to its own code, and packages the contents of
+After the stages, EggPM returns to its own code, and creates a basic info.xml
+in the build directory with some info. After that, it packages the contents of
 `build` into a `.eggpm` file. Afterwards, it removes the `build` directory and
 the original file that it originally downloaded. The final `.eggpm` is put in
 `dist`, and there is also a message by EggPM telling you the exact path.
@@ -198,11 +201,13 @@ This is too in-depth for the README, but it might be useful to someone.
 
 The `.eggpm` file format is just a `.tar.xz` archive with a different
 extension. The files in it are from the root directory, so for example,
-`/usr/bin/hello` would be put in `./usr/bin/hello` in the file. Eventually,
-there might be a few scripts in the file for what to do post installation but
-that is for another time. 
+`/usr/bin/hello` would be put in `./usr/bin/hello` in the file. It also
+contains a `info.xml` file containing some information about the package.
+Eventually, there might be a few scripts in the file for what to do post
+installation but that is for another time. 
 
 ## Bug Reports / Questions
 
 If you're using this program for some reason and you find a bug, either use the
-[Github issue tracker](https://github.com/BaguetteYeeter/eggpm/issues) or send an email to [baguetteyeeter@icloud.com](mailto:baguetteyeeter@icloud.com)
+[Github issue tracker](https://github.com/BaguetteYeeter/eggpm/issues) or send
+an email to [baguetteyeeter@icloud.com](mailto:baguetteyeeter@icloud.com)

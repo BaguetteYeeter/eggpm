@@ -39,19 +39,26 @@ int main(int argc, char* argv[]) {
 
     db = create_database(db_location);
 
-    int res;
+    int res = 1;
 
     struct repo_package *packages = (struct repo_package*) malloc(sizeof(struct repo_package) * opts.packc);
     int packc = 0;
 
     for (int i = 0; i < opts.packc; i++) {
         struct repo_package pkg;
-        for (int j = 0; j < config.repoc; j++) {
-            res = search_repo(config, j, opts.packages[i], &pkg);
-            if (res == 0) {
-                break;
+
+        if (access(opts.packages[i], F_OK) == 0) {
+            res = get_info_xml(opts.packages[i], &pkg);
+        }
+        if (res == 1) {
+            for (int j = 0; j < config.repoc; j++) {
+                res = search_repo(config, j, opts.packages[i], &pkg);
+                if (res == 0) {
+                    break;
+                }
             }
         }
+        
         if (res == 0) {
             if (opts.install == 1) {
                 pkg.operation = "install";
@@ -86,6 +93,9 @@ int main(int argc, char* argv[]) {
         printf("\n---Downloading packages---\n");
         for (int i = 0; i < packc; i++) {
             pkg = packages[i];
+            if (pkg.local) {
+                continue;
+            }
             printf("%s... ", pkg.url);
             fflush(stdout);
             download_package(pkg);

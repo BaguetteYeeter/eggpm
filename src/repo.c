@@ -19,6 +19,7 @@ struct repo_package {
     char* url;
     char* checksum;
     char* operation;
+    int local;
 };
 
 static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
@@ -113,7 +114,7 @@ int search_repo(struct conf config, int repo_index, char* pkgname, struct repo_p
         exit(1);
     }
 
-    struct repo_package pkg = {"", "", "", "", "", 0, "", "", ""};
+    struct repo_package pkg = {"", "", "", "", "", 0, "", "", "", 0};
     int found = 0;
 
     //i dont understand any of this

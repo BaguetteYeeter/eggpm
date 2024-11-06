@@ -13,6 +13,7 @@ struct repo_package {
     char* url;
     char* checksum;
     char* operation;
+    int local;
 };
 
 char* get_repo_name(struct conf config, int index);
