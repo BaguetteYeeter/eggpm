@@ -5,7 +5,7 @@ AM_PROG_AR
 PKG_PROG_PKG_CONFIG
 LT_INIT([disable-static])
 
-AC_CHECK_HEADERS([getopt.h regex.h archive.h openssl/evp.h], [], [
+AC_CHECK_HEADERS([getopt.h regex.h], [], [
   AC_MSG_ERROR([can't find essential header files])
 ])
 
@@ -36,6 +36,7 @@ PKG_CHECK_MODULES([OPENSSL], [openssl], [], [
 AC_DEFINE_UNQUOTED([INSTALL_PREFIX], ["$prefix"], [Define the installation prefix])
 AC_DEFINE_UNQUOTED([VAR_PREFIX], ["$prefix/var"], [Define the localstatedir prefix])
 AC_DEFINE_UNQUOTED([ETC_PREFIX], ["$prefix/etc"], [Define the sysconfdir prefix])
+AC_DEFINE_UNQUOTED([DATAROOTDIR_PREFIX], ["$prefix/share"], [Define the datarootdir prefix])
 
 AC_CONFIG_MACRO_DIR([m4])
 

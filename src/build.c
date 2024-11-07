@@ -6,6 +6,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <ftw.h>
+#include <config.h>
 
 #include "utils.h"
 #include "conf.h"
@@ -56,7 +57,19 @@ void build_package(char* name) {
 
     printf("\n---Reading package info---\n");
 
-    FILE *fp = popen(catstring("exec bash -c 'source ", path, " && set'", NULL), "r");
+    FILE* fp = fopen(path, "r");
+    char firstline[1024];
+    char* preset;
+    if (fgets(firstline, sizeof(firstline), fp) != NULL) {
+        if (strstart(firstline, "preset=") == 0) {
+            char** parts = split_string_no(firstline, "=", 1);
+            preset = parts[1];
+            preset[strlen(preset)-1] = '\0';
+        }
+    }
+
+    char* presetpath = catstring(DATAROOTDIR_PREFIX, "/eggpm/", preset, ".sh", NULL);
+    fp = popen(catstring("exec bash -c 'source ", presetpath, " && source ", path, " && set'", NULL), "r");
 
     char line[256];
     while (fgets(line, sizeof(line), fp) != NULL) {
