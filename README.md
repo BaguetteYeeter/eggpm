@@ -136,6 +136,8 @@ Variables like name, version are defined as normal bash variables.
 
 The variables `stage00` - `stage99` are used for stages in the build process.
 
+There are also presets which make build.sh files smaller.
+
 Here is the file tree before building. For this section, it'll show the process
 of building the GNU package `hello-2.12.1`.
 
@@ -144,11 +146,16 @@ hello
 └── build.sh
 ```
 
-First, EggPM runs the script with `bash` and extracts variables afterwards.
-Then, it downloads the file in `url` and matches it with the sha256 checksum in
-`checksum`. It extracts the file with `tar -xf`. Finally, it enters the main
-directory, so if you run `eggpm -b packages/hello`, it would put you in 
-`packages/hello`.
+First, EggPM checks the first line of the script to see if it has a preset. If
+so, it runs the preset file. Preset files all have a function called
+`run_preset`, which when run, activates the preset. This is so variables like
+name and version can be defined before the preset, so it can use those
+variables.
+
+Afterwards, it runs the main script and extracts variables. Then, it downloads
+the file in `url` and matches it with the sha256 checksum in `checksum`. It
+extracts the file with `tar -xf`.  Finally, it enters the main directory, so if
+you run `eggpm -b packages/hello`, it would put you in `packages/hello`.
 
 ```
 hello
