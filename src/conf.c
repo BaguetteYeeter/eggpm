@@ -5,12 +5,7 @@
 #include <stdlib.h>
 
 #include "utils.h"
-
-struct conf {
-    char** repositories;
-    int repoc;
-    char* arch;
-};
+#include "conf.h"
 
 char* get_arch() {
     char* arch = "unknown";
@@ -37,6 +32,8 @@ struct conf readconf() {
 
     result.repoc = 0;
     result.repositories = (char**) malloc(sizeof(char*));
+    result.repo_prefix = "YOUR_URL";
+    result.repo_path = NULL;
 
     char* filename = catstring(ETC_PREFIX, "/eggpm.conf", NULL);
 
@@ -64,9 +61,15 @@ struct conf readconf() {
     char** lines = split_string(buffer, "\n", &linec);
 
     for (int i = 0; i < linec; i++) {
-        if (!strncmp(lines[i], "repository=", 11)) {
+        if (!strstart(lines[i], "repository=")) {
             char* repo = split_string(lines[i], "=", (int*) -1)[1];
             add_string_list(&result.repositories, &result.repoc, repo);
+        } else if (!strstart(lines[i], "repo_prefix=")) {
+            char* repo = split_string(lines[i], "=", (int*) -1)[1];
+            result.repo_prefix = repo;
+        } else if (!strstart(lines[i], "repo_path=")) {
+            char* repo = split_string(lines[i], "=", (int*) -1)[1];
+            result.repo_path = repo;
         }
     }
 

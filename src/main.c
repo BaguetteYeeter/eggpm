@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
 
     if (opts.build_package == 1) {
         for (int i = 0; i < opts.packc; i++) {
-            build_package(opts.packages[i]);
+            build_package(opts.packages[i], config);
         }
         exit(0);
     }

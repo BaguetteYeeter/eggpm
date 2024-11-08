@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 #include <ftw.h>
 #include <config.h>
+#include <libxml/parser.h>
 
 #include "utils.h"
 #include "conf.h"
@@ -39,7 +40,21 @@ long int getSize(char* directory) {
     return (long int) totalSize;
 }
 
-void build_package(char* name) {
+void add_to_xml(char* original, char* text) {
+    xmlInitParser();
+    xmlDocPtr doc = xmlParseFile(original);
+    xmlNodePtr root_node = xmlDocGetRootElement(doc);
+
+    xmlDocPtr package_doc = xmlParseMemory(text, strlen(text));
+
+    xmlNodePtr package_node = xmlDocGetRootElement(package_doc);
+
+    xmlAddChild(root_node, package_node);
+
+    xmlSaveFormatFileEnc(original, doc, "UTF-8", 1);
+}
+
+void build_package(char* name, struct conf config) {
     char* path = catstring(name, "/build.sh", NULL);
 
     if (access(path, F_OK) != 0) {
@@ -163,10 +178,10 @@ void build_package(char* name) {
     }
 
     long size = getSize("build");
-    char* pkgxml = (char*) malloc(sizeof(char) * 1024);
+    char* pkgxml = (char*) malloc(sizeof(char) * 2048);
 
     snprintf(
-        pkgxml, 1024,
+        pkgxml, 2048,
         "<package>\n"
         "    <name>%s</name>\n"
         "    <version>%s</version>\n"
@@ -202,8 +217,8 @@ void build_package(char* name) {
     char* checksum = calculate_sha256(fp);
     fclose(fp);
 
-    printf("\nIf you're building this for a repo, here is package information\n");
-    printf(
+    snprintf(
+        pkgxml, 2048,
         "<package name=\"%s\">\n"
         "    <name>%s</name>\n"
         "    <version>%s</version>\n"
@@ -211,9 +226,22 @@ void build_package(char* name) {
         "    <description>%s</description>\n"
         "    <size>%ld</size>\n"
         "    <dependencies>%s</dependencies>\n"
-        "    <url>YOURURL/%s</url>\n"
+        "    <url>%s/%s</url>\n"
         "    <checksum>%s</checksum>\n"
         "</package>\n",
-        pkg.name, pkg.name, pkg.version, pkg.arch, pkg.description, size, pkg.rundepends, pkgpath, checksum
+        pkg.name, pkg.name, pkg.version, pkg.arch, pkg.description, size, pkg.rundepends, config.repo_prefix, pkgpath, checksum
     );
+
+    char* info_xml_path = catstring(name, "/dist/", pkg.name, "-", pkg.version, "-", pkg.arch, ".xml", NULL);
+    fp = fopen(info_xml_path, "wb");
+    fwrite(pkgxml, 1, strlen(pkgxml), fp);
+    fclose(fp);
+
+    if (config.repo_path != NULL) {
+        add_to_xml(config.repo_path, pkgxml);
+        printf("Repo successfully updated\n");
+    }
+
+    printf("\nIf you're building this for a repo, here is package information\nThis is also stored in %s\n", info_xml_path);
+    printf("%s\n", pkgxml);
 }

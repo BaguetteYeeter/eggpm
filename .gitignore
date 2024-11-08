@@ -66,3 +66,4 @@ libtool
 */*/dist/*.eggpm
 src/eggpm
 dist
+.DS_Store
