@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "utils.h"
+#include "repo.h"
 
 sqlite3* database_connect(char* location) {
     sqlite3* db;
@@ -88,4 +89,33 @@ void add_package(sqlite3 *db, char* name, char* version, char* architecture, cha
     }
 
     sqlite3_finalize(stmt);
+}
+
+int get_package(sqlite3 *db, char* name, struct repo_package* out_pkg) {
+    sqlite3_stmt *stmt;
+    int rc;
+    struct repo_package pkg;
+
+    const char *sql = "SELECT PackageID, Version, Architecture, Repository, Description, Size FROM Packages WHERE Name = ?;";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    sqlite3_bind_text(stmt, 1, name, -1, SQLITE_STATIC);
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        int id = sqlite3_column_int(stmt, 0);
+        pkg.version = (char*) sqlite3_column_text(stmt, 1);
+        pkg.architecture = (char*) sqlite3_column_text(stmt, 2);
+        pkg.repository = (char*) sqlite3_column_text(stmt, 3);
+        pkg.description = (char*) sqlite3_column_text(stmt, 4);
+        pkg.size = sqlite3_column_int(stmt, 5);
+
+        sqlite3_finalize(stmt);
+        if (out_pkg != NULL) {
+            *out_pkg = pkg;
+        }
+        return 0;
+    }
+
+    sqlite3_finalize(stmt);
+    return 1;
 }

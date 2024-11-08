@@ -5,6 +5,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "utils.h"
 #include "database.h"
@@ -60,6 +61,10 @@ int main(int argc, char* argv[]) {
         }
         
         if (res == 0) {
+            if (get_package(db, pkg.name, NULL) == 0) {
+                printf("Package `%s` already installed\n", pkg.name);
+                continue;
+            }
             if (opts.install == 1) {
                 pkg.operation = "install";
             }
@@ -111,7 +116,20 @@ int main(int argc, char* argv[]) {
             printf("done\n");
         }
 
-        printf("\nSuccessfully installed %d packages\n", packc);
+        long installtime = time(NULL);
+        char* installdate = (char*) malloc(sizeof(char*) * 16);
+        snprintf(installdate, 15, "%ld", installtime);
+
+        for (int i = 0; i < packc; i++) {
+            pkg = packages[i];
+            add_package(db, pkg.name, pkg.version, pkg.architecture, pkg.repository, pkg.description, installdate, pkg.size);
+        }
+
+        if (packc == 1) {
+            printf("\nSuccessfully installed %d package\n", packc);
+        } else {
+            printf("\nSuccessfully installed %d packages\n", packc);
+        }
     }
 
     sqlite3_close(db);
