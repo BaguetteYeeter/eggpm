@@ -7,20 +7,8 @@
 
 #include "conf.h"
 #include "config.h"
+#include "repo.h"
 #include "utils.h"
-
-struct repo_package {
-    char* name;
-    char* version;
-    char* architecture;
-    char* repository;
-    char* description;
-    long int size;
-    char* url;
-    char* checksum;
-    char* operation;
-    int local;
-};
 
 static size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
     size_t written = fwrite(ptr, size, nmemb, (FILE *)stream);
@@ -114,7 +102,7 @@ int search_repo(struct conf config, int repo_index, char* pkgname, struct repo_p
         exit(1);
     }
 
-    struct repo_package pkg = {"", "", "", "", "", 0, "", "", "", 0};
+    struct repo_package pkg = {"", "", "", "", "", 0, "", "", "", 0, ""};
     int found = 0;
 
     //i dont understand any of this

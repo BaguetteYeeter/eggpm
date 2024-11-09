@@ -12,4 +12,6 @@ void add_package(sqlite3 *db, char* name, char* version, char* architecture, cha
 
 int get_package(sqlite3 *db, char* name, struct repo_package* out_pkg);
 
+void update_package(sqlite3 *db, struct repo_package pkg);
+
 #endif

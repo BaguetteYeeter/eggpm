@@ -14,6 +14,7 @@ struct repo_package {
     char* checksum;
     char* operation;
     int local;
+    char* installdate;
 };
 
 char* get_repo_name(struct conf config, int index);

@@ -119,3 +119,28 @@ int get_package(sqlite3 *db, char* name, struct repo_package* out_pkg) {
     sqlite3_finalize(stmt);
     return 1;
 }
+
+void update_package(sqlite3 *db, struct repo_package pkg) {
+    sqlite3_stmt *stmt;
+    int rc;
+
+    const char *sql = "UPDATE Packages SET `Version`=?,`Architecture`=?,`Repository`=?,`Description`=?,`InstallDate`=?,`Size`=? WHERE `Name` = ?";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    sqlite3_bind_text(stmt, 1, pkg.version, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, pkg.architecture, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, pkg.repository, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 4, pkg.description, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 5, pkg.installdate, -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 6, pkg.size);
+    sqlite3_bind_text(stmt, 7, pkg.name, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+
+    if (rc != SQLITE_DONE) {
+        printf("DB Error\n");
+        exit(1);
+    }
+
+    sqlite3_finalize(stmt);
+}
