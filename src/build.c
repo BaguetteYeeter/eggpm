@@ -1,29 +1,18 @@
+#include <ftw.h>
+#include <libxml/parser.h>
+#include <regex.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
-#include <regex.h>
-#include <sys/wait.h>
 #include <sys/stat.h>
-#include <ftw.h>
-#include <config.h>
-#include <libxml/parser.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
-#include "utils.h"
+#include "build.h"
 #include "conf.h"
+#include "config.h"
+#include "utils.h"
 #include "parser.h"
-
-struct build_pkg {
-    char* name;
-    char* version;
-    char* arch;
-    char* description;
-    char* makedepends;
-    char* rundepends;
-    char* url;
-    char* checksum;
-    char** stages;
-};
 
 static unsigned int totalSize = 0;
 int sum(const char *fpath, const struct stat *sb, int typeflag) {

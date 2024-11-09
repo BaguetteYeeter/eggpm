@@ -1,9 +1,9 @@
+#include <getopt.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <getopt.h>
-#include <config.h>
 #include <string.h>
 
+#include "config.h"
 #include "parser.h"
 
 void print_help(char* program_name) {

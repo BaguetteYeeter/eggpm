@@ -1,19 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
-#include <config.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
 
-#include "utils.h"
-#include "database.h"
-#include "conf.h"
-#include "repo.h"
-#include "install.h"
 #include "build.h"
+#include "conf.h"
+#include "config.h"
+#include "database.h"
+#include "install.h"
 #include "parser.h"
+#include "repo.h"
+#include "utils.h"
 
 int main(int argc, char* argv[]) {
     struct options opts = parse(argc, argv);

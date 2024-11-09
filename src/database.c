@@ -1,11 +1,11 @@
-#include <stdio.h>
 #include <sqlite3.h>
-#include <config.h>
-#include <unistd.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
-#include "utils.h"
+#include "config.h"
 #include "repo.h"
+#include "utils.h"
 
 sqlite3* database_connect(char* location) {
     sqlite3* db;

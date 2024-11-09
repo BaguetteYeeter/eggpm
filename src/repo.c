@@ -1,12 +1,12 @@
 #include <curl/curl.h>
-#include <stdio.h>
-#include <config.h>
-#include <regex.h>
-#include <string.h>
-#include <stdlib.h>
 #include <libxml/parser.h>
+#include <regex.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "conf.h"
+#include "config.h"
 #include "utils.h"
 
 struct repo_package {
