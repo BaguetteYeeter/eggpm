@@ -7,6 +7,7 @@ struct conf {
     char* arch;
     char* repo_prefix;
     char* repo_path;
+    char* packages_path;
 };
 
 char* get_arch();

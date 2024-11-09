@@ -211,11 +211,22 @@ void build_package(char* name, struct conf config) {
 
     chdir(cwd);
 
-    printf("\n---------------------------------------\nPackage successfully created at `%s/dist/%s`\n", name, pkgpath);
-
     fp = fopen(catstring(name, "/dist/", pkgpath, NULL), "rb");
     char* checksum = calculate_sha256(fp);
     fclose(fp);
+
+    printf("\n---------------------------------------\nPackage successfully created at ");
+
+    if (config.packages_path) {
+        system(catstring("mv ", name, "/dist/", pkgpath, " ", config.packages_path, NULL));
+        printf("`%s/%s`\n", config.packages_path, pkgpath);
+    } else {
+        printf("`%s/dist/%s`\n", name, pkgpath);
+    }
+
+    if (strcmp(config.repo_prefix, "YOUR_URL") == 0 && config.repo_path != NULL) {
+        printf("WARNING: Option repo_prefix is not defined\n");
+    }
 
     snprintf(
         pkgxml, 2048,
@@ -232,16 +243,11 @@ void build_package(char* name, struct conf config) {
         pkg.name, pkg.name, pkg.version, pkg.arch, pkg.description, size, pkg.rundepends, config.repo_prefix, pkgpath, checksum
     );
 
-    char* info_xml_path = catstring(name, "/dist/", pkg.name, "-", pkg.version, "-", pkg.arch, ".xml", NULL);
-    fp = fopen(info_xml_path, "wb");
-    fwrite(pkgxml, 1, strlen(pkgxml), fp);
-    fclose(fp);
-
     if (config.repo_path != NULL) {
         add_to_xml(config.repo_path, pkgxml);
         printf("Repo successfully updated\n");
     }
 
-    printf("\nIf you're building this for a repo, here is package information\nThis is also stored in %s\n", info_xml_path);
+    printf("\nIf you're building this for a repo, here is package information\n");
     printf("%s\n", pkgxml);
 }

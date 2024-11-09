@@ -34,6 +34,7 @@ struct conf readconf() {
     result.repositories = (char**) malloc(sizeof(char*));
     result.repo_prefix = "YOUR_URL";
     result.repo_path = NULL;
+    result.packages_path = NULL;
 
     char* filename = catstring(ETC_PREFIX, "/eggpm.conf", NULL);
 
@@ -70,6 +71,9 @@ struct conf readconf() {
         } else if (!strstart(lines[i], "repo_path=")) {
             char* repo = split_string(lines[i], "=", (int*) -1)[1];
             result.repo_path = repo;
+        } else if (!strstart(lines[i], "packages_path=")) {
+            char* repo = split_string(lines[i], "=", (int*) -1)[1];
+            result.packages_path = repo;
         }
     }
 
