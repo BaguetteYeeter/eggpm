@@ -40,16 +40,37 @@ long int getSize(char* directory) {
     return (long int) totalSize;
 }
 
-void add_to_xml(char* original, char* text) {
+void add_to_xml(char* original, char* package, char* text, struct conf config) {
     xmlInitParser();
     xmlDocPtr doc = xmlParseFile(original);
     xmlNodePtr root_node = xmlDocGetRootElement(doc);
 
-    xmlDocPtr package_doc = xmlParseMemory(text, strlen(text));
+    xmlNode *node = root_node->children;
 
-    xmlNodePtr package_node = xmlDocGetRootElement(package_doc);
-
-    xmlAddChild(root_node, package_node);
+    while (node != NULL) {
+        if (node->type == XML_ELEMENT_NODE) {
+            if (xmlStrcmp(node->name, (const xmlChar *)"package") == 0) {
+                xmlChar *name = xmlGetProp(node, (const xmlChar *)"name");
+                if (name && xmlStrcmp(name, (const xmlChar *)package) == 0) {
+                    xmlChar* arch = NULL;
+                    for (xmlNode *child = node->children; child != NULL; child = child->next) {
+                        if (child->type == XML_ELEMENT_NODE && xmlStrcmp(child->name, (const xmlChar *)"architecture") == 0) {
+                            arch = xmlNodeGetContent(child);
+                            break;
+                        }
+                    }
+                    if (strcmp((char*) arch, config.arch) == 0) {
+                        xmlUnlinkNode(node);
+                        xmlDocPtr package_doc = xmlParseMemory(text, strlen(text));
+                        xmlNodePtr package_node = xmlDocGetRootElement(package_doc);
+                        xmlAddChild(root_node, package_node);
+                        break;
+                    }
+                }
+            }
+        }
+        node = node->next;
+    }
 
     xmlSaveFormatFileEnc(original, doc, "UTF-8", 1);
 }
@@ -244,7 +265,7 @@ void build_package(char* name, struct conf config) {
     );
 
     if (config.repo_path != NULL) {
-        add_to_xml(config.repo_path, pkgxml);
+        add_to_xml(config.repo_path, pkg.name, pkgxml, config);
         printf("Repo successfully updated\n");
     }
 
