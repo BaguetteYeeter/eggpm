@@ -47,6 +47,8 @@ void add_to_xml(char* original, char* package, char* text, struct conf config) {
 
     xmlNode *node = root_node->children;
 
+    int found = 0;
+
     while (node != NULL) {
         if (node->type == XML_ELEMENT_NODE) {
             if (xmlStrcmp(node->name, (const xmlChar *)"package") == 0) {
@@ -64,12 +66,19 @@ void add_to_xml(char* original, char* package, char* text, struct conf config) {
                         xmlDocPtr package_doc = xmlParseMemory(text, strlen(text));
                         xmlNodePtr package_node = xmlDocGetRootElement(package_doc);
                         xmlAddChild(root_node, package_node);
+                        found = 1;
                         break;
                     }
                 }
             }
         }
         node = node->next;
+    }
+
+    if (found == 0) {
+        xmlDocPtr package_doc = xmlParseMemory(text, strlen(text));
+        xmlNodePtr package_node = xmlDocGetRootElement(package_doc);
+        xmlAddChild(root_node, package_node);
     }
 
     xmlSaveFormatFileEnc(original, doc, "UTF-8", 1);
