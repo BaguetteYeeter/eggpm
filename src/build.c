@@ -109,7 +109,14 @@ void build_package(char* name, struct conf config, struct options opts) {
     char line[256];
     while (fgets(line, sizeof(line), fp) != NULL) {
         line[strcspn(line, "\n")] = 0;
+        int len = strlen(line);
         char** parts = split_string_no(line, "=", 1);
+        if (strlen(parts[0]) != len) {
+            if (parts[1][0] == '\'') {
+                parts[1]++;
+                parts[1][strlen(parts[1])-1] = 0;
+            }
+        }
         if (strcmp(parts[0], "name") == 0) {
             pkg.name = parts[1];
         } else if (strcmp(parts[0], "version") == 0) {
@@ -134,10 +141,6 @@ void build_package(char* name, struct conf config, struct options opts) {
             char stageno[length + 1];
             snprintf(stageno, length + 1, "%.*s", length, parts[0] + matches[1].rm_so);
             int sno = strtol((char*) stageno, NULL, 10);
-            if (parts[1][0] == '\'') {
-                parts[1]++;
-                parts[1][strlen(parts[1])-1] = 0;
-            }
             if (stages[sno] == NULL) {
                 stages[sno] = parts[1];
             } else {
