@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
 
     if (opts.build_package == 1) {
         for (int i = 0; i < opts.packc; i++) {
-            build_package(opts.packages[i], config);
+            build_package(opts.packages[i], config, opts);
         }
         exit(0);
     }
@@ -60,9 +60,11 @@ int main(int argc, char* argv[]) {
         }
         
         if (res == 0) {
-            if (get_package(db, pkg.name, NULL) == 0) {
-                printf("Package `%s` already installed\n", pkg.name);
-                continue;
+            if (opts.force != 1) {
+                if (get_package(db, pkg.name, NULL) == 0) {
+                    printf("Package `%s` already installed\n", pkg.name);
+                    continue;
+                }
             }
             if (opts.install == 1) {
                 pkg.operation = "install";
@@ -83,13 +85,15 @@ int main(int argc, char* argv[]) {
             printf("%s (%s) will be %sed\n", pkg.name, pkg.version, pkg.operation);
         }
 
-        printf("\nDo you want to continue [y/n]? ");
-        fflush(stdout);
-        char* yesno = (char*) malloc(sizeof(char) * 30);
-        scanf("%29s", yesno);
-        if (strcmp("y", yesno) != 0) {
-            printf("Aborting!\n");
-            exit(0);
+        if (opts.yes != 1) {
+            printf("\nDo you want to continue [y/n]? ");
+            fflush(stdout);
+            char* yesno = (char*) malloc(sizeof(char) * 30);
+            scanf("%29s", yesno);
+            if (strcmp("y", yesno) != 0) {
+                printf("Aborting!\n");
+                exit(0);
+            }
         }
 
         struct repo_package pkg;

@@ -11,6 +11,7 @@
 
 #include "utils.h"
 #include "conf.h"
+#include "parser.h"
 
 struct build_pkg {
     char* name;
@@ -84,7 +85,7 @@ void add_to_xml(char* original, char* package, char* text, struct conf config) {
     xmlSaveFormatFileEnc(original, doc, "UTF-8", 1);
 }
 
-void build_package(char* name, struct conf config) {
+void build_package(char* name, struct conf config, struct options opts) {
     char* path = catstring(name, "/build.sh", NULL);
 
     if (access(path, F_OK) != 0) {
@@ -235,9 +236,11 @@ void build_package(char* name, struct conf config) {
     system(catstring("tar -cJf dist/", pkgpath, " -C build .", NULL));
     printf("done\n");
 
-    printf("\n---Deleting old files---\n");
-    system(catstring("rm ", filename, NULL));
-    system(catstring("rm -rf build"));
+    if (opts.keep == 0) {
+        printf("\n---Deleting old files---\n");
+        system(catstring("rm ", filename, NULL));
+        system(catstring("rm -rf build"));
+    }
 
     chdir(cwd);
 
