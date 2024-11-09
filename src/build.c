@@ -178,7 +178,12 @@ void build_package(char* name, struct conf config, struct options opts) {
             continue;
         }
 
-        printf(">>> %s\n", stages[i]);
+        if (isatty(fileno(stdout))) {
+            printf("\e[1m>>> %s\e[m\n", stages[i]);
+        } else {
+            printf(">>> %s\n", stages[i]);
+        }
+        
         if (strstart(stages[i], "cd ") == 0) {
             char** parts = split_string_no(stages[i], " ", 1);
             chdir(parts[1]);
