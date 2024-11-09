@@ -72,11 +72,6 @@ The default repository is `https://baguye.uk/eggpm/repo`
 
 The config file `eggpm.conf` is stored in sysconfdir, aka PREFIX/etc
 
-EggPM does not install a default config file, although it should now that I
-think about it...
-
-For now, the config only has one option, repository.
-
 The syntax is simply key=value
 
 To add a repository to EggPM, just add the following to eggpm.conf
@@ -84,6 +79,16 @@ To add a repository to EggPM, just add the following to eggpm.conf
 `repository=[URL]`
 
 There is an example in /examples so this can't be messed up.
+
+Options for building packages are below.
+
+`repo_prefix=[URL]` defines the base url for packages, so 
+`URL/hello-2.12.1.eggpm` for example
+
+`repo_path=[path]` defines where the repository is stored, EggPM can
+automatically update the repo when building a package
+
+`packages_path=[path]` defines where to put the final package once finished.
 
 ## Installation
 
@@ -127,6 +132,8 @@ Eventually there will be support for JSON repositories too, but we'll see.
 To get the package info, just use the output from `eggpm -b` from earlier,
 or use the example in /examples and just change the figures. Make sure to 
 change the `url` section to where the file is located.
+
+Another option to add package info is to use the `repo_path` config option.
 
 ## Build process
 
@@ -190,7 +197,8 @@ After the stages, EggPM returns to its own code, and creates a basic info.xml
 in the build directory with some info. After that, it packages the contents of
 `build` into a `.eggpm` file. Afterwards, it removes the `build` directory and
 the original file that it originally downloaded. The final `.eggpm` is put in
-`dist`, and there is also a message by EggPM telling you the exact path.
+`dist`, and there is also a message by EggPM telling you the exact path. If
+you use the `packages_path` config option, it will be stored there instead.
 
 ```
 hello
@@ -199,8 +207,8 @@ hello
 └── build.sh
 ```
 
-Finally EggPM prints lots of info about how to add this package to a 
-repository, so it's mostly copying the XML it gives.
+Finally, EggPM updates the repository if `repo_path` is used, making for a mostly
+automatic build process. It also prints the XML info if needed.
 
 ## File structure
 
