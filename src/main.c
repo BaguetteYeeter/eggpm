@@ -40,12 +40,11 @@ int main(int argc, char* argv[]) {
 
     db = create_database(db_location);
 
-    int res = 1;
-
     struct repo_package *packages = (struct repo_package*) malloc(sizeof(struct repo_package) * opts.packc);
     int packc = 0;
 
     for (int i = 0; i < opts.packc; i++) {
+        int res = 1;
         struct repo_package pkg;
 
         if (access(opts.packages[i], F_OK) == 0) {
