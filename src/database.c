@@ -32,7 +32,7 @@ sqlite3* create_database(char* location) {
     char* err_msg;
     int rc;
 
-    const char* sql = "CREATE TABLE IF NOT EXISTS `Packages` (`PackageID` INTEGER PRIMARY KEY AUTOINCREMENT , `Name` VARCHAR(50) NOT NULL , `Version` VARCHAR(20) NOT NULL , `Architecture` VARCHAR(10) NOT NULL , `Repository` VARCHAR(100) NOT NULL , `Description` VARCHAR(100) NOT NULL , `InstallDate` VARCHAR(30) NOT NULL , `Size` INT NOT NULL);";
+    const char* sql = "CREATE TABLE IF NOT EXISTS `Packages` (`PackageID` INTEGER PRIMARY KEY AUTOINCREMENT , `Name` VARCHAR(50) NOT NULL , `Version` VARCHAR(20) NOT NULL , `Architecture` VARCHAR(10) NOT NULL , `Repository` VARCHAR(100) NOT NULL , `Description` VARCHAR(100) NOT NULL , `InstallDate` INT NOT NULL , `Size` INT NOT NULL);";
 
     rc = sqlite3_exec(db, sql, NULL, NULL, &err_msg);
 
@@ -66,7 +66,7 @@ void list_all_packages(sqlite3 *db) {
 
 }
 
-void add_package(sqlite3 *db, char* name, char* version, char* architecture, char* repository, char* description, char* installdate, int size) {
+void add_package(sqlite3 *db, char* name, char* version, char* architecture, char* repository, char* description, long installdate, int size) {
     sqlite3_stmt *stmt;
     int rc;
 
@@ -78,7 +78,7 @@ void add_package(sqlite3 *db, char* name, char* version, char* architecture, cha
     sqlite3_bind_text(stmt, 3, architecture, -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 4, repository, -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 5, description, -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 6, installdate, -1, SQLITE_STATIC);
+    sqlite3_bind_int64(stmt, 6, installdate);
     sqlite3_bind_int(stmt, 7, size);
 
     rc = sqlite3_step(stmt);
@@ -131,7 +131,7 @@ void update_package(sqlite3 *db, struct repo_package pkg) {
     sqlite3_bind_text(stmt, 2, pkg.architecture, -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 3, pkg.repository, -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 4, pkg.description, -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 5, pkg.installdate, -1, SQLITE_STATIC);
+    sqlite3_bind_int64(stmt, 5, pkg.installdate);
     sqlite3_bind_int(stmt, 6, pkg.size);
     sqlite3_bind_text(stmt, 7, pkg.name, -1, SQLITE_STATIC);
 

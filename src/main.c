@@ -120,12 +120,10 @@ int main(int argc, char* argv[]) {
         }
 
         long installtime = time(NULL);
-        char* installdate = (char*) malloc(sizeof(char) * 16);
-        snprintf(installdate, 15, "%ld", installtime);
 
         for (int i = 0; i < packc; i++) {
             pkg = packages[i];
-            pkg.installdate = installdate;
+            pkg.installdate = installtime;
             if (get_package(db, pkg.name, NULL) != 0) {
                 add_package(db, pkg.name, pkg.version, pkg.architecture, pkg.repository, pkg.description, pkg.installdate, pkg.size);
             } else {
