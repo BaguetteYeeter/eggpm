@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include <sqlite3.h>
 
 #include "conf.h"
 #include "repo.h"
@@ -22,5 +23,6 @@ char* get_sha256(char* filename);
 
 int get_pkg(char* name, struct conf config, struct repo_package *out_pkg);
 void add_pkg(struct repo_package** packages, int *packc, struct repo_package pkg);
+int check_upgrade(sqlite3 *db, struct repo_package *pkg);
 
 #endif

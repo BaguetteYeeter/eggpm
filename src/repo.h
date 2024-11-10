@@ -16,6 +16,7 @@ struct repo_package {
     int local;
     long installdate;
     char* rundepends;
+    char* oldversion;
 };
 
 char* get_repo_name(struct conf config, int index);

@@ -5,9 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sqlite3.h>
 #include <unistd.h>
 
 #include "conf.h"
+#include "database.h"
 #include "repo.h"
 
 char* catstring(char* string, ...) {
@@ -236,4 +238,21 @@ void add_pkg(struct repo_package** packages, int *packc, struct repo_package pkg
     pkgs = (struct repo_package*) realloc(pkgs, sizeof(struct repo_package) * (*packc));
     pkgs[*packc-1] = pkg;
     *packages = pkgs;
+}
+
+int check_upgrade(sqlite3 *db, struct repo_package *pkg) {
+    struct repo_package db_pkg;
+    int res = get_package(db, pkg->name, &db_pkg);
+    if (res == 0) {
+        res = strcmp(pkg->version, db_pkg.version);
+        if (res > 0) {
+            pkg->operation = "upgrade";
+            pkg->oldversion = db_pkg.version;
+            return 1;
+        } else {
+            return 0;
+        }
+    } else {
+        return -1;
+    }
 }

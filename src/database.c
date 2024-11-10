@@ -1,6 +1,7 @@
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "config.h"
@@ -103,10 +104,11 @@ int get_package(sqlite3 *db, char* name, struct repo_package* out_pkg) {
 
     while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
         int id = sqlite3_column_int(stmt, 0);
-        pkg.version = (char*) sqlite3_column_text(stmt, 1);
-        pkg.architecture = (char*) sqlite3_column_text(stmt, 2);
-        pkg.repository = (char*) sqlite3_column_text(stmt, 3);
-        pkg.description = (char*) sqlite3_column_text(stmt, 4);
+        pkg.name = name;
+        pkg.version = strdup((char*) sqlite3_column_text(stmt, 1));
+        pkg.architecture = strdup((char*) sqlite3_column_text(stmt, 2));
+        pkg.repository = strdup((char*) sqlite3_column_text(stmt, 3));
+        pkg.description = strdup((char*) sqlite3_column_text(stmt, 4));
         pkg.size = sqlite3_column_int(stmt, 5);
 
         sqlite3_finalize(stmt);

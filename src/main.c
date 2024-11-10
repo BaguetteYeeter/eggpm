@@ -56,14 +56,15 @@ int main(int argc, char* argv[]) {
         }
         
         if (res == 0) {
+            if (opts.install == 1) {
+                pkg.operation = "install";
+            }
             if (opts.force != 1) {
-                if (get_package(db, pkg.name, NULL) == 0) {
+                res = check_upgrade(db, &pkg);
+                if (res == 0) {
                     printf("Package `%s` already installed\n", pkg.name);
                     continue;
                 }
-            }
-            if (opts.install == 1) {
-                pkg.operation = "install";
             }
             packages[packc] = pkg;
             packc++;
@@ -90,6 +91,10 @@ int main(int argc, char* argv[]) {
                     int res = get_pkg(parts[j], config, &pkg);
                     if (res == 0) {
                         pkg.operation = "install";
+                        res = check_upgrade(db, &pkg);
+                        if (res == 0) {
+                            continue;
+                        }
                         add_pkg(&packages, &packc, pkg);
                         changes++;
                     } else {
@@ -108,7 +113,11 @@ int main(int argc, char* argv[]) {
 
         for (int i = 0; i < packc; i++) {
             struct repo_package pkg = packages[i];
-            printf("%s (%s) will be %sed\n", pkg.name, pkg.version, pkg.operation);
+            if (strcmp(pkg.operation, "upgrade") == 0) {
+                printf("%s (%s -> %s) will be upgraded\n", pkg.name, pkg.oldversion, pkg.version);
+            } else {
+                printf("%s (%s) will be %sed\n", pkg.name, pkg.version, pkg.operation);
+            }
         }
 
         if (opts.yes != 1) {
