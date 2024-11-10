@@ -77,6 +77,36 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    while (1 == 1) {
+        int changes = 0;
+        for (int i = 0; i < packc; i++) {
+            int count = 0;
+            char** parts = split_string(packages[i].rundepends, " ", &count);
+            for (int j = 0; j < count; j++) {
+                int found = 0;
+                for (int k = 0; k < packc; k++) {
+                    if (strcmp(packages[k].name, parts[j]) == 0) {
+                        found = 1;
+                    }
+                }
+                if (found == 0) {
+                    struct repo_package pkg;
+                    for (int k = 0; k < config.repoc; k++) {
+                        search_repo(config, k, parts[j], &pkg);
+                        packc++;
+                        changes++;
+                        packages = (struct repo_package*) realloc(packages, sizeof(struct repo_package) * packc);
+                        pkg.operation = "install";
+                        packages[packc-1] = pkg;
+                    }
+                }
+            }
+        }
+        if (changes == 0) {
+            break;
+        }
+    }
+
     if (packc > 0) {
         printf("\n");
 

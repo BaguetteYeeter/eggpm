@@ -102,7 +102,7 @@ int search_repo(struct conf config, int repo_index, char* pkgname, struct repo_p
         exit(1);
     }
 
-    struct repo_package pkg = {"", "", "", config.repositories[repo_index], "", 0, "", "", "", 0, 0};
+    struct repo_package pkg = {"", "", "", config.repositories[repo_index], "", 0, "", "", "", 0, 0, ""};
     int found = 0;
 
     //i dont understand any of this
@@ -143,6 +143,9 @@ int search_repo(struct conf config, int repo_index, char* pkgname, struct repo_p
                     } else if (xmlStrcmp(child->name, (const xmlChar *)"checksum") == 0) {
                         xmlChar *cs = xmlNodeGetContent(child);
                         pkg.checksum = (char*) cs;
+                    } else if (xmlStrcmp(child->name, (const xmlChar *)"dependencies") == 0) {
+                        xmlChar *dependencies = xmlNodeGetContent(child);
+                        pkg.rundepends = (char*) dependencies;
                     }
                 }
             }

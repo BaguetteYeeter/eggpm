@@ -58,6 +58,8 @@ void read_xml(char* data, long size, struct repo_package* pkg) {
                 pkg->description = (char*) value;
             } else if (xmlStrcmp(child->name, (const xmlChar *)"size") == 0) {
                 pkg->size = strtol((char*) value, NULL, 10);
+            } else if (xmlStrcmp(child->name, (const xmlChar *)"dependencies") == 0) {
+                pkg->rundepends = (char*) value;
             }
         }
     }
@@ -81,6 +83,7 @@ int get_info_xml(char* filename, struct repo_package* out_pkg) {
             char* data = (char*) malloc(size);
             archive_read_data(archive, data, size);
             out_pkg->local = 1;
+            out_pkg->repository = "local";
             out_pkg->url = filename;
             read_xml(data, size, out_pkg);
             found = 0;
