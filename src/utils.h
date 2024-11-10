@@ -1,6 +1,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include "conf.h"
+#include "repo.h"
+
 #ifndef UTILS_H
 #define UTILS_H
 
@@ -16,5 +19,8 @@ char* get_filename_url(char* url);
 
 char* calculate_sha256(FILE *fp);
 char* get_sha256(char* filename);
+
+int get_pkg(char* name, struct conf config, struct repo_package *out_pkg);
+void add_pkg(struct repo_package** packages, int *packc, struct repo_package pkg);
 
 #endif

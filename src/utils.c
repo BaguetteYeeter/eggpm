@@ -7,6 +7,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "conf.h"
+#include "repo.h"
+
 char* catstring(char* string, ...) {
     int length = 1;
     length = strlen(string);
@@ -212,4 +215,25 @@ char* get_filename_url(char* url) {
     regfree(&regex);
 
     return path;
+}
+
+int get_pkg(char* name, struct conf config, struct repo_package *out_pkg) {
+    struct repo_package pkg;
+    for (int i = 0; i < config.repoc; i++) {
+        int res;
+        res = search_repo(config, i, name, &pkg);
+        if (res == 0) {
+            *out_pkg = pkg;
+            return 0;
+        }
+    }
+    return 1;
+}
+
+void add_pkg(struct repo_package** packages, int *packc, struct repo_package pkg) {
+    struct repo_package* pkgs = *packages;
+    *packc = *packc + 1;
+    pkgs = (struct repo_package*) realloc(pkgs, sizeof(struct repo_package) * (*packc));
+    pkgs[*packc-1] = pkg;
+    *packages = pkgs;
 }

@@ -50,13 +50,9 @@ int main(int argc, char* argv[]) {
         if (access(opts.packages[i], F_OK) == 0) {
             res = get_info_xml(opts.packages[i], &pkg);
         }
+
         if (res == 1) {
-            for (int j = 0; j < config.repoc; j++) {
-                res = search_repo(config, j, opts.packages[i], &pkg);
-                if (res == 0) {
-                    break;
-                }
-            }
+            res = get_pkg(opts.packages[i], config, &pkg);
         }
         
         if (res == 0) {
@@ -91,13 +87,13 @@ int main(int argc, char* argv[]) {
                 }
                 if (found == 0) {
                     struct repo_package pkg;
-                    for (int k = 0; k < config.repoc; k++) {
-                        search_repo(config, k, parts[j], &pkg);
-                        packc++;
-                        changes++;
-                        packages = (struct repo_package*) realloc(packages, sizeof(struct repo_package) * packc);
+                    int res = get_pkg(parts[j], config, &pkg);
+                    if (res == 0) {
                         pkg.operation = "install";
-                        packages[packc-1] = pkg;
+                        add_pkg(&packages, &packc, pkg);
+                        changes++;
+                    } else {
+                        printf("ERROR: Package `%s` not found\n", parts[j]);
                     }
                 }
             }
