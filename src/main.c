@@ -43,6 +43,24 @@ int main(int argc, char* argv[]) {
     struct repo_package *packages = (struct repo_package*) malloc(sizeof(struct repo_package) * opts.packc);
     int packc = 0;
 
+    if (opts.upgrade == 1) {
+        struct repo_package *db_pkgs;
+        int count = get_all_packages(db, &db_pkgs);
+        for (int i = 0; i < count; i++) {
+            struct repo_package dbpkg = db_pkgs[i];
+            struct repo_package newpkg;
+            int res = get_pkg(dbpkg.name, config, &newpkg);
+            if (res == 0) {
+                res = check_upgrade(db, &newpkg);
+                if (res > 0) {
+                    newpkg.operation = "upgrade";
+                    newpkg.oldversion = dbpkg.version;
+                    add_pkg(&packages, &packc, newpkg);
+                }
+            }
+        }
+    }
+
     for (int i = 0; i < opts.packc; i++) {
         int res = 1;
         struct repo_package pkg;
@@ -66,8 +84,7 @@ int main(int argc, char* argv[]) {
                     continue;
                 }
             }
-            packages[packc] = pkg;
-            packc++;
+            add_pkg(&packages, &packc, pkg);
         } else {
             printf("ERROR: Package `%s` not found\n", opts.packages[i]);
             exit(1);

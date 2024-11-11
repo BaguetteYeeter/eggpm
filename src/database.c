@@ -64,7 +64,33 @@ void list_all_packages(sqlite3 *db) {
     }
 
     sqlite3_finalize(res);
+}
 
+int get_all_packages(sqlite3 *db, struct repo_package** out_pkgs) {
+    sqlite3_stmt *res;
+    int rc;
+
+    const char *sql = "SELECT PackageID, Name, Version FROM Packages;";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
+
+    struct repo_package* packages = malloc(sizeof(struct repo_package));
+
+    int count = 0;
+
+    while ((rc = sqlite3_step(res)) == SQLITE_ROW) {
+        count++;
+        struct repo_package pkg;
+        pkg.name = strdup((char*) sqlite3_column_text(res, 1));
+        pkg.version = strdup((char*) sqlite3_column_text(res, 2));
+        packages = realloc(packages, sizeof(struct repo_package) * count);
+        packages[count-1] = pkg;
+    }
+
+    sqlite3_finalize(res);
+
+    *out_pkgs = packages;
+    return count;
 }
 
 void add_package(sqlite3 *db, char* name, char* version, char* architecture, char* repository, char* description, long installdate, int size) {

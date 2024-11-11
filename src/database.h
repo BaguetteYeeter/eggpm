@@ -7,6 +7,7 @@
 
 sqlite3* create_database(char* location);
 void list_all_packages(sqlite3 *db);
+int get_all_packages(sqlite3 *db, struct repo_package** out_pkgs);
 
 void add_package(sqlite3 *db, char* name, char* version, char* architecture, char* repository, char* description, long installdate, int size);
 

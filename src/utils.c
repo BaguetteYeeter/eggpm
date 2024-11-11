@@ -232,12 +232,26 @@ int get_pkg(char* name, struct conf config, struct repo_package *out_pkg) {
     return 1;
 }
 
+int check_exists(struct repo_package *packages, int packc, char* name, char* version) {
+    for (int i = 0; i < packc; i++) {
+        if (strcmp(packages[i].name, name) == 0) {
+            int res = strcmp(packages[i].version, version);
+            if (res >= 0) {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
 void add_pkg(struct repo_package** packages, int *packc, struct repo_package pkg) {
-    struct repo_package* pkgs = *packages;
-    *packc = *packc + 1;
-    pkgs = (struct repo_package*) realloc(pkgs, sizeof(struct repo_package) * (*packc));
-    pkgs[*packc-1] = pkg;
-    *packages = pkgs;
+    if (check_exists(*packages, *packc, pkg.name, pkg.version) == 1) {
+        struct repo_package* pkgs = *packages;
+        *packc = *packc + 1;
+        pkgs = (struct repo_package*) realloc(pkgs, sizeof(struct repo_package) * (*packc));
+        pkgs[*packc-1] = pkg;
+        *packages = pkgs;
+    }
 }
 
 int check_upgrade(sqlite3 *db, struct repo_package *pkg) {

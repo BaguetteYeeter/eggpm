@@ -10,6 +10,7 @@ struct options {
     int force;
     int keep;
     int yes;
+    int upgrade;
 };
 
 struct options parse(int argc, char *argv[]);

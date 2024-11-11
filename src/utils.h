@@ -25,4 +25,6 @@ int get_pkg(char* name, struct conf config, struct repo_package *out_pkg);
 void add_pkg(struct repo_package** packages, int *packc, struct repo_package pkg);
 int check_upgrade(sqlite3 *db, struct repo_package *pkg);
 
+int check_exists(struct repo_package *packages, int packc, char* name, char* version);
+
 #endif

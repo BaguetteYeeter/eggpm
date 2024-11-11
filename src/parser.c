@@ -15,6 +15,7 @@ void print_help(char* program_name) {
         "  -i, --install        install a package\n"
         "  -k, --keep           do not delete extra files\n"
         "  -S, --update-repo    update the repository\n"
+        "  -u, --upgrade        upgrade all packages\n"
         "  -y, --yes            automatically answer questions\n"
         "\n  --help       display this help and exit\n"
         "  --version    output version information and exit\n\n"
@@ -36,6 +37,7 @@ struct options parse(int argc, char *argv[]) {
     opts.force = 0;
     opts.keep = 0;
     opts.yes = 0;
+    opts.upgrade = 0;
 
     char** packages = (char**) malloc(sizeof(char*) * argc);
     for (int i = 0; i < argc; i++) {
@@ -51,11 +53,12 @@ struct options parse(int argc, char *argv[]) {
         {"force", no_argument, 0, 'f'},
         {"keep", no_argument, 0, 'k'},
         {"yes", no_argument, 0, 'y'},
+        {"upgrade", no_argument, 0, 'u'},
         {0, 0, 0, 0}
     };
 
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "hVSbifky", long_options, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "hVSbifkyu", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
                 print_help(argv[0]);
@@ -80,6 +83,9 @@ struct options parse(int argc, char *argv[]) {
                 continue;
             case 'y':
                 opts.yes = 1;
+                continue;
+            case 'u':
+                opts.upgrade = 1;
                 continue;
             default:
                 print_help(argv[0]);
