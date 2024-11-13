@@ -14,6 +14,7 @@ void print_help(char* program_name) {
         "  -f, --force          do not check installed packages\n"
         "  -i, --install        install a package\n"
         "  -k, --keep           do not delete extra files\n"
+        "      --skip-stages    skip downloading and building in --build\n"
         "  -S, --update-repo    update the repository\n"
         "  -u, --upgrade        upgrade all packages\n"
         "  -y, --yes            automatically answer questions\n"
@@ -38,6 +39,7 @@ struct options parse(int argc, char *argv[]) {
     opts.keep = 0;
     opts.yes = 0;
     opts.upgrade = 0;
+    opts.skip_stages = 0;
 
     char** packages = (char**) malloc(sizeof(char*) * argc);
     for (int i = 0; i < argc; i++) {
@@ -54,6 +56,7 @@ struct options parse(int argc, char *argv[]) {
         {"keep", no_argument, 0, 'k'},
         {"yes", no_argument, 0, 'y'},
         {"upgrade", no_argument, 0, 'u'},
+        {"skip-stages", no_argument, 0, 1},
         {0, 0, 0, 0}
     };
 
@@ -86,6 +89,9 @@ struct options parse(int argc, char *argv[]) {
                 continue;
             case 'u':
                 opts.upgrade = 1;
+                continue;
+            case 1:
+                opts.skip_stages = 1;
                 continue;
             default:
                 print_help(argv[0]);

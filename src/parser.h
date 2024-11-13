@@ -11,6 +11,7 @@ struct options {
     int keep;
     int yes;
     int upgrade;
+    int skip_stages;
 };
 
 struct options parse(int argc, char *argv[]);

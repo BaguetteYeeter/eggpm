@@ -151,58 +151,66 @@ void build_package(char* name, struct conf config, struct options opts) {
 
     pclose(fp);
 
-    printf("\n---Downloading files---\n");
-    printf("%s... ", pkg.url);
-    fflush(stdout);
-    char* filename = get_filename_url(pkg.url);
-    char* real_filename = catstring(name, "/", filename, NULL);
-    download_file(pkg.url, real_filename, pkg.checksum);
-    printf("done\n");
-
-    printf("\n---Extracting files---\n");
-    printf("%s... ", filename);
-    fflush(stdout);
-    system(catstring("tar -xf ", real_filename, " -C ", name, NULL));
-    printf("done\n");
-
-    system(catstring("mkdir -p ", name, "/build", NULL));
-
+    char* filename;
+    char* real_filename;
     char cwd[1024];
-    getcwd(cwd, sizeof(cwd));
 
-    chdir(name);
+    if (opts.skip_stages != 1) {
+        printf("\n---Downloading files---\n");
+        printf("%s... ", pkg.url);
+        fflush(stdout);
+        filename = get_filename_url(pkg.url);
+        real_filename = catstring(name, "/", filename, NULL);
+        download_file(pkg.url, real_filename, pkg.checksum);
+        printf("done\n");
 
-    printf("\n---Running stages---\n");
-    for (int i = 0; i < 100; i++) {
-        if (stages[i] == NULL) {
-            continue;
+        printf("\n---Extracting files---\n");
+        printf("%s... ", filename);
+        fflush(stdout);
+        system(catstring("tar -xf ", real_filename, " -C ", name, NULL));
+        printf("done\n");
+
+        system(catstring("mkdir -p ", name, "/build", NULL));
+
+        getcwd(cwd, sizeof(cwd));
+
+        chdir(name);
+
+        printf("\n---Running stages---\n");
+        for (int i = 0; i < 100; i++) {
+            if (stages[i] == NULL) {
+                continue;
+            }
+
+            if (isatty(fileno(stdout))) {
+                printf("\e[1m>>> %s\e[m\n", stages[i]);
+            } else {
+                printf(">>> %s\n", stages[i]);
+            }
+            
+            if (strstart(stages[i], "cd ") == 0) {
+                char** parts = split_string_no(stages[i], " ", 1);
+                chdir(parts[1]);
+                continue;
+            }
+
+            fp = popen(stages[i], "r");
+
+            char buffer[1024];
+            while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+                fputs(buffer, stdout);
+            }
+
+            int status = pclose(fp);
+            status = WEXITSTATUS(status);
+            if (status != 0) {
+                printf("Last command failed");
+                exit(status);
+            }
         }
-
-        if (isatty(fileno(stdout))) {
-            printf("\e[1m>>> %s\e[m\n", stages[i]);
-        } else {
-            printf(">>> %s\n", stages[i]);
-        }
-        
-        if (strstart(stages[i], "cd ") == 0) {
-            char** parts = split_string_no(stages[i], " ", 1);
-            chdir(parts[1]);
-            continue;
-        }
-
-        fp = popen(stages[i], "r");
-
-        char buffer[1024];
-        while (fgets(buffer, sizeof(buffer), fp) != NULL) {
-            fputs(buffer, stdout);
-        }
-
-        int status = pclose(fp);
-        status = WEXITSTATUS(status);
-        if (status != 0) {
-            printf("Last command failed");
-            exit(status);
-        }
+    } else {
+        getcwd(cwd, sizeof(cwd));
+        chdir(name);
     }
 
     long size = getSize("build");
