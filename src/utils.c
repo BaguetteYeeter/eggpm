@@ -172,6 +172,7 @@ void download_file(char* url, char* filename, char* checksum) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
 
     CURLcode res = curl_easy_perform(curl);
 
