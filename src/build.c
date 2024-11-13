@@ -16,7 +16,7 @@
 
 static unsigned int totalSize = 0;
 int sum(const char *fpath, const struct stat *sb, int typeflag) {
-    if (S_ISDIR(sb->st_mode)) {return 0;}
+    if (S_ISDIR(sb->st_mode) || S_ISLNK(sb->st_mode)) {return 0;}
     totalSize += sb->st_size;
     return 0;
 }
