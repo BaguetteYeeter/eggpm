@@ -1,4 +1,4 @@
-AC_INIT([eggpm], [0.2], [baguetteyeeter@icloud.com])
+AC_INIT([eggpm], [0.3], [baguetteyeeter@icloud.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_PROG_CC
 AM_PROG_AR
@@ -7,10 +7,6 @@ LT_INIT([disable-static])
 
 AC_CHECK_HEADERS([getopt.h regex.h], [], [
   AC_MSG_ERROR([can't find essential header files])
-])
-
-AC_CHECK_LIB([xml2], [xmlParseDoc], [], [
-  AC_MSG_ERROR([can't find libxml2])
 ])
 
 PKG_CHECK_MODULES([LIBXML], [libxml-2.0], [], [
