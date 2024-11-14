@@ -16,16 +16,20 @@
 
 static unsigned int totalSize = 0;
 int sum(const char *fpath, const struct stat *sb, int typeflag) {
+    struct stat link_stat;
+    if (lstat(fpath, &link_stat) == 0 && S_ISLNK(link_stat.st_mode)) {
+    	return 0;
+    }
     if (typeflag == FTW_F) {
         totalSize += sb->st_size;
     }
     return 0;
 }
 
-//i hate ftw so much, it makes no sense
+//i REALLY hate ftw now, it makes no sense
 long int getSize(char* directory) {
     totalSize = 0;
-    if (ftw(directory, &sum, 1)) {
+    if (ftw(directory, &sum, 10) == -1) {
         exit(1);
     }
     return (long int) totalSize;
