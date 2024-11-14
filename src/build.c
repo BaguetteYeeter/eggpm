@@ -156,16 +156,15 @@ void build_package(char* name, struct conf config, struct options opts) {
 
     pclose(fp);
 
-    char* filename;
-    char* real_filename;
+    char* filename = get_filename_url(pkg.url);
+    char* real_filename = catstring(name, "/", filename, NULL);
     char cwd[1024];
+    getcwd(cwd, sizeof(cwd));
 
     if (opts.skip_stages != 1) {
         printf("\n---Downloading files---\n");
         printf("%s... ", pkg.url);
         fflush(stdout);
-        filename = get_filename_url(pkg.url);
-        real_filename = catstring(name, "/", filename, NULL);
         download_file(pkg.url, real_filename, pkg.checksum);
         printf("done\n");
 
@@ -176,8 +175,6 @@ void build_package(char* name, struct conf config, struct options opts) {
         printf("done\n");
 
         system(catstring("mkdir -p ", name, "/build", NULL));
-
-        getcwd(cwd, sizeof(cwd));
 
         chdir(name);
 
@@ -214,7 +211,6 @@ void build_package(char* name, struct conf config, struct options opts) {
             }
         }
     } else {
-        getcwd(cwd, sizeof(cwd));
         chdir(name);
     }
 
