@@ -29,10 +29,18 @@ PKG_CHECK_MODULES([OPENSSL], [openssl], [], [
   AC_MSG_ERROR([can't find openssl])
 ])
 
-AC_DEFINE_UNQUOTED([INSTALL_PREFIX], ["$prefix"], [Define the installation prefix])
-AC_DEFINE_UNQUOTED([VAR_PREFIX], ["$prefix/var"], [Define the localstatedir prefix])
-AC_DEFINE_UNQUOTED([ETC_PREFIX], ["$prefix/etc"], [Define the sysconfdir prefix])
-AC_DEFINE_UNQUOTED([DATAROOTDIR_PREFIX], ["$prefix/share"], [Define the datarootdir prefix])
+AS_IF([test "$prefix" = "NONE"], [prefix=/usr/local], [])
+
+# thank you openssl for this, and no there isn't a better way
+A=`eval echo ${prefix}` ; A=`eval echo ${A}`
+B=`eval echo ${localstatedir}` ; B=`eval echo ${B}`
+C=`eval echo ${sysconfdir}` ; C=`eval echo ${C}`
+D=`eval echo ${datarootdir}` ; D=`eval echo ${D}`
+
+AC_DEFINE_UNQUOTED([INSTALL_PREFIX], ["$A"], [Define the installation prefix])
+AC_DEFINE_UNQUOTED([VAR_PREFIX], ["$B"], [Define the localstatedir prefix])
+AC_DEFINE_UNQUOTED([ETC_PREFIX], ["$C"], [Define the sysconfdir prefix])
+AC_DEFINE_UNQUOTED([DATAROOTDIR_PREFIX], ["$D"], [Define the datarootdir prefix])
 
 AC_CONFIG_MACRO_DIR([m4])
 
