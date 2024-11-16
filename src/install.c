@@ -132,4 +132,6 @@ void install_package(struct repo_package pkg, struct options opts) {
             archive_write_data_block(disk, buff, size, offset);
         }
     }
+
+    archive_read_free(archive);
 }
