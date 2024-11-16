@@ -167,7 +167,7 @@ int main(int argc, char* argv[]) {
             pkg = packages[i];
             printf("%s-%s... ", pkg.name, pkg.version);
             fflush(stdout);
-            install_package(pkg);
+            install_package(pkg, opts);
             printf("done\n");
         }
 

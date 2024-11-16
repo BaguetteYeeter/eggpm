@@ -15,6 +15,7 @@ void print_help(char* program_name) {
         "  -i, --install        install a package\n"
         "  -k, --keep           do not delete extra files\n"
         "      --skip-stages    skip downloading and building in --build\n"
+        "  -R, --root           set install root (default /tmp/eggpmtest)\n"
         "  -S, --update-repo    update the repository\n"
         "  -u, --upgrade        upgrade all packages\n"
         "  -y, --yes            automatically answer questions\n"
@@ -40,6 +41,7 @@ struct options parse(int argc, char *argv[]) {
     opts.yes = 0;
     opts.upgrade = 0;
     opts.skip_stages = 0;
+    opts.root = "/tmp/eggpmtest";
 
     char** packages = (char**) malloc(sizeof(char*) * argc);
     for (int i = 0; i < argc; i++) {
@@ -57,11 +59,12 @@ struct options parse(int argc, char *argv[]) {
         {"yes", no_argument, 0, 'y'},
         {"upgrade", no_argument, 0, 'u'},
         {"skip-stages", no_argument, 0, 1},
+        {"root", required_argument, 0, 'R'},
         {0, 0, 0, 0}
     };
 
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "hVSbifkyu", long_options, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "hVSbifkyuR:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'h':
                 print_help(argv[0]);
@@ -92,6 +95,9 @@ struct options parse(int argc, char *argv[]) {
                 continue;
             case 1:
                 opts.skip_stages = 1;
+                continue;
+            case 'R':
+                opts.root = strdup(optarg);
                 continue;
             default:
                 print_help(argv[0]);

@@ -12,6 +12,7 @@ struct options {
     int yes;
     int upgrade;
     int skip_stages;
+    char* root;
 };
 
 struct options parse(int argc, char *argv[]);

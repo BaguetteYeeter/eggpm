@@ -7,6 +7,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "parser.h"
 #include "repo.h"
 #include "utils.h"
 
@@ -97,11 +98,11 @@ void download_package(struct repo_package pkg) {
     download_file(pkg.url, get_pkg_filename(pkg), pkg.checksum);
 }
 
-void install_package(struct repo_package pkg) {
+void install_package(struct repo_package pkg, struct options opts) {
     char* filename = get_pkg_filename(pkg);
 
     //temporary so it doesnt break my system
-    system("mkdir -p /tmp/eggpmtest");
+    system(catstring("mkdir -p ", opts.root, NULL));
 
     struct archive *archive = archive_read_new();
     archive_read_support_filter_xz(archive);
@@ -121,7 +122,7 @@ void install_package(struct repo_package pkg) {
         struct archive *disk = archive_write_disk_new();
 
         const char* original = archive_entry_pathname(entry);
-        archive_entry_set_pathname(entry, catstring("/tmp/eggpmtest/", original, NULL));
+        archive_entry_set_pathname(entry, catstring(opts.root, "/", original, NULL));
 
         archive_write_header(disk, entry);
         const void *buff;
