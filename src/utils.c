@@ -99,7 +99,12 @@ char** split_string_no(char *string, char *split, int max) {
     while (token) {
         add_string_list(&result, &size, token);
         if (size >= max) {
-            add_string_list(&result, &size, strtok(NULL, ""));
+            char* end = strtok(NULL, "");
+            if (end == NULL) {
+                add_string_list(&result, &size, "");
+            } else {
+                add_string_list(&result, &size, end);
+            }
             break;
         }
         token = strtok(NULL, split);
