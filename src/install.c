@@ -98,38 +98,103 @@ void download_package(struct repo_package pkg) {
     download_file(pkg.url, get_pkg_filename(pkg), pkg.checksum);
 }
 
+static int copy_data(struct archive *ar, struct archive *aw) {
+    int r;
+    const void *buff;
+    size_t size;
+    la_int64_t offset;
+
+    for (;;) {
+        r = archive_read_data_block(ar, &buff, &size, &offset);
+        if (r == ARCHIVE_EOF) {
+            return (ARCHIVE_OK);
+        }
+        if (r < ARCHIVE_OK) {
+            return (r);
+        }
+        r = archive_write_data_block(aw, buff, size, offset);
+        if (r < ARCHIVE_OK) {
+            fprintf(stderr, "%s\n", archive_error_string(aw));
+            return (r);
+        }
+    }
+}
+
 void install_package(struct repo_package pkg, struct options opts) {
     char* filename = get_pkg_filename(pkg);
 
     //temporary so it doesnt break my system
     system(catstring("mkdir -p ", opts.root, NULL));
 
-    struct archive *archive = archive_read_new();
+    struct archive *archive, *ext;
+    struct archive_entry *entry;
+    int flags;
+    int r;
+
+    flags = ARCHIVE_EXTRACT_TIME;
+    flags |= ARCHIVE_EXTRACT_PERM;
+    flags |= ARCHIVE_EXTRACT_ACL;
+    flags |= ARCHIVE_EXTRACT_FFLAGS;
+
+    archive = archive_read_new();
     archive_read_support_filter_xz(archive);
     archive_read_support_format_tar(archive);
 
-    if (archive_read_open_filename(archive, filename, 16384) != ARCHIVE_OK) {
-        printf("Failed to open %s\n", filename);
+    ext = archive_write_disk_new();
+    archive_write_disk_set_options(ext, flags);
+    archive_write_disk_set_standard_lookup(ext);
+
+    if ((r = archive_read_open_filename(archive, filename, 16384))) {
+        printf("Failed to read %s\n", filename);
         exit(1);
     }
 
-    struct archive_entry *entry;
-    while (archive_read_next_header(archive, &entry) == ARCHIVE_OK) {
-        const char *current_file = archive_entry_pathname(entry);
-        if (strcmp(current_file, "./info.xml") == 0) {
+    for (;;) {
+        r = archive_read_next_header(archive, &entry);
+
+        if (r == ARCHIVE_EOF) {
+            break;
+        }
+        if (r < ARCHIVE_OK) {
+            fprintf(stderr, "%s\n", archive_error_string(archive));
+        }
+        if (r < ARCHIVE_WARN) {
+            printf("Archive error 1\n");
+            exit(1);
+        }
+
+        const char *original_path = archive_entry_pathname(entry);
+        if (strcmp(original_path, "./info.xml") == 0) {
             continue;
         }
-        struct archive *disk = archive_write_disk_new();
+        size_t size = strlen(opts.root) + strlen(original_path) + 2;
+        char *new_path = malloc(sizeof(char) * size);
+        snprintf(new_path, size, "%s/%s", opts.root, original_path);
+        archive_entry_set_pathname(entry, new_path);
+        free(new_path);
 
-        const char* original = archive_entry_pathname(entry);
-        archive_entry_set_pathname(entry, catstring(opts.root, "/", original, NULL));
+        r = archive_write_header(ext, entry);
 
-        archive_write_header(disk, entry);
-        const void *buff;
-        size_t size;
-        int64_t offset;
-        while (archive_read_data_block(archive, &buff, &size, &offset) == ARCHIVE_OK) {
-            archive_write_data_block(disk, buff, size, offset);
+        if (r < ARCHIVE_OK) {
+            fprintf(stderr, "%s\n", archive_error_string(ext));
+        } else if (archive_entry_size(entry) > 0) {
+            r = copy_data(archive, ext);
+            if (r < ARCHIVE_OK) {
+                fprintf(stderr, "%s\n", archive_error_string(ext));   
+            }
+            if (r < ARCHIVE_WARN) {
+                printf("Archive error 2\n");
+                exit(1);
+            }
+        }
+
+        r = archive_write_finish_entry(ext);
+        if (r < ARCHIVE_OK) {
+            fprintf(stderr, "%s\n", archive_error_string(ext));
+        }
+        if (r < ARCHIVE_WARN) {
+            printf("Archive error 3\n");
+            exit(1);
         }
     }
 
