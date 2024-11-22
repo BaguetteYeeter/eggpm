@@ -99,7 +99,7 @@ void build_package(char* name, struct conf config, struct options opts) {
 
     FILE* fp = fopen(path, "r");
     char firstline[1024];
-    char* preset;
+    char* preset = NULL;
     if (fgets(firstline, sizeof(firstline), fp) != NULL) {
         if (strstart(firstline, "preset=") == 0) {
             char** parts = split_string_no(firstline, "=", 1);
@@ -108,8 +108,12 @@ void build_package(char* name, struct conf config, struct options opts) {
         }
     }
 
-    char* presetpath = catstring(DATAROOTDIR_PREFIX, "/eggpm/", preset, ".sh", NULL);
-    fp = popen(catstring("exec bash -c 'source ", presetpath, " && source ", path, " && set'", NULL), "r");
+    if (preset != NULL) {
+        char* presetpath = catstring(DATAROOTDIR_PREFIX, "/eggpm/", preset, ".sh", NULL);
+        fp = popen(catstring("exec bash -c 'source ", presetpath, " && source ", path, " && set'", NULL), "r");
+    } else {
+        fp = popen(catstring("exec bash -c 'source ", path, " && set'", NULL), "r");
+    }
 
     char line[256];
     while (fgets(line, sizeof(line), fp) != NULL) {
