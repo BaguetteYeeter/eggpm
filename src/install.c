@@ -94,6 +94,32 @@ int get_info_xml(char* filename, struct repo_package* out_pkg) {
     return found;
 }
 
+int get_install_sh(char *filename, char **output) {
+    struct archive *archive = archive_read_new();
+    archive_read_support_filter_xz(archive);
+    archive_read_support_format_tar(archive);
+
+    if (archive_read_open_filename(archive, filename, 65536) != ARCHIVE_OK) {
+        return 1;
+    }
+
+    struct archive_entry *entry;
+    int found = 1;
+    while (archive_read_next_header(archive, &entry) == ARCHIVE_OK) {
+        const char *current_file = archive_entry_pathname(entry);
+        if (strcmp(current_file, "./install.sh") == 0) {
+            long size = archive_entry_size(entry);
+            char* data = (char*) malloc(sizeof(char)*(size+1));
+            archive_read_data(archive, data, size);
+            data[size] = '\0';
+            *output = data;
+            found = 0;
+            break;
+        }
+    }
+    return found;
+}
+
 void download_package(struct repo_package pkg) {
     download_file(pkg.url, get_pkg_filename(pkg), pkg.checksum);
 }
@@ -164,7 +190,7 @@ void install_package(struct repo_package pkg, struct options opts) {
         }
 
         const char *original_path = archive_entry_pathname(entry);
-        if (strcmp(original_path, "./info.xml") == 0) {
+        if (strcmp(original_path, "./info.xml") == 0 || strcmp(original_path, "./install.sh") == 0) {
             continue;
         }
         size_t size = strlen(opts.root) + strlen(original_path) + 2;

@@ -171,6 +171,19 @@ int main(int argc, char* argv[]) {
             printf("done\n");
         }
 
+        printf("\n---Processing packages---\n");
+        for (int i = 0; i < packc; i++) {
+            pkg = packages[i];
+            char* install_sh;
+            int extra = get_install_sh(get_pkg_filename(pkg), &install_sh);
+            if (extra == 0) {
+                printf("%s-%s... ", pkg.name, pkg.version);
+                fflush(stdout);
+                system(install_sh);
+                printf("done\n");
+            }
+        }
+
         long installtime = time(NULL);
 
         for (int i = 0; i < packc; i++) {

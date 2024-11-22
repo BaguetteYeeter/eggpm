@@ -238,6 +238,10 @@ void build_package(char* name, struct conf config, struct options opts) {
     fwrite(pkgxml, 1, strlen(pkgxml), fp);
     fclose(fp);
 
+    if (access("install.sh", F_OK) == 0) {
+        system("cp install.sh build");
+    }
+
     printf("\n---Packaging---\n");
     char* pkgpath = catstring(pkg.name, "-", pkg.version, "-", pkg.arch, ".eggpm", NULL);
     printf("%s... ", pkgpath);
